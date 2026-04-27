@@ -8,12 +8,15 @@ const MemberSchema = new Schema({
     },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
-    roles: [{ type: String }],
-    description: { type: String, default: null },
+    roles: {
+        de: [{ type: String }],
+        en: [{ type: String }]
+    },
+    description: { de: { type: String, default: null }, en: { type: String, default: null } },
     socialMedia: [{
         platform: { type: String },
         url: { type: String }
     }]
 }, { versionKey: false });
 
-export default model('Member', MemberSchema, 'Members')
+export default model('Member', MemberSchema, 'Members');

@@ -18,41 +18,50 @@ const menuOpen = () => {
   open.value = !open.value
 }
 
+const DURATION = 500
+const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
+
 const smoothScroll = (href: string, event: Event) => {
   event.preventDefault()
   const targetId = href.replace('#', '')
   const targetElement = document.getElementById(targetId)
 
   if (targetElement) {
-    const navbarHeight = 80
-    const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navbarHeight
+    const navEl = document.getElementById('main-navbar')
+    const navBottom = navEl?.getBoundingClientRect().bottom ?? 80
+    const targetY = Math.round(targetElement.getBoundingClientRect().top + window.pageYOffset - navBottom)
 
-    window.scrollTo({
-      top: targetPosition,
-      behavior: 'smooth'
-    })
+    const startY = window.scrollY
+    const distance = targetY - startY
+    let startTime: number | null = null
+
+    const step = (ts: number) => {
+      if (!startTime) startTime = ts
+      const progress = Math.min((ts - startTime) / DURATION, 1)
+      window.scrollTo(0, startY + distance * easeOut(progress))
+      if (progress < 1) requestAnimationFrame(step)
+    }
+    requestAnimationFrame(step)
   }
 
-  if (open.value) {
-    open.value = false
-  }
+  if (open.value) open.value = false
 }
 </script>
 
 <template>
-  <div class="fixed top-0 left-0 w-full z-50 text-white bg-gray-900 py-8 md:flex md:items-center justify-between px-10">
+  <div id="main-navbar" class="fixed top-0 left-0 w-full z-50 text-white bg-gray-900/95 backdrop-blur-md border-b border-gray-800/60 py-4 md:py-8 md:flex md:items-center justify-between px-10">
     <div class="logo cursor-pointer">
       <a href="#home" @click="smoothScroll('#home', $event)" class="block">
         <img src="../assets/logos/ICON.png" alt="Studio Logo" class="block md:hidden w-12 h-auto select-none">
         <img src="../assets/logos/BIG.png" alt="Studio Logo" class="hidden md:block w-60 h-auto select-none">
       </a>
     </div>
-    <span class="text-3xl absolute right-6 top-6 cursor-pointer md:hidden" @click="menuOpen">
+    <span class="text-3xl absolute right-6 top-4 md:top-6 cursor-pointer md:hidden" @click="menuOpen">
       <i :class="[open ? 'bi bi-x' : 'bi bi-list']"></i>
     </span>
-    <ul class="md:flex gap-10 items-center absolute md:static bg-gray-900 w-full md:w-auto md:pb-0 px-10 md:px-15 top-20 duration-500" :class="[open ? 'left-0' : 'left-[-100%]']">
+    <ul class="md:flex gap-10 items-center absolute md:static bg-gray-900/75 md:bg-transparent backdrop-blur-md md:backdrop-blur-none w-full md:w-auto md:pb-0 px-10 md:px-15 top-16 md:top-20 duration-500" :class="[open ? 'left-0' : 'left-[-100%]']">
       <li v-for="tag in tags" :key="tag.href" class="py-4 md:py-0">
-        <a :href="tag.href" @click="smoothScroll(tag.href, $event)" class="hover:text-blue-600 duration-300 text-xl font-bold">{{ tag.name }}</a>
+        <a :href="tag.href" @click="smoothScroll(tag.href, $event)" class="hover:text-amber-400 duration-300 text-xl font-bold">{{ tag.name }}</a>
       </li>
 
       <!-- Language Switcher -->

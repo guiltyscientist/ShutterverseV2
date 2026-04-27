@@ -21,7 +21,10 @@ const uploadTo = (folder) => {
             ]
         }
     });
-    return multer({ storage });
+    return multer({
+        storage,
+        limits: { fileSize: 10 * 1024 * 1024 } // 10 MB — matches Cloudinary free plan limit
+    });
 };
 
 export { cloudinary };

@@ -2,14 +2,17 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useLocale } from '../composables/useLocale'
+import { useLocalText } from '../composables/useLocalText'
+import type { LocaleText } from '../composables/useLocalText'
 
 const { t, locale } = useLocale()
+const { lt } = useLocalText()
 
 interface NewsItem {
   id: string
   created: string
-  title: string
-  text: string
+  title: LocaleText
+  text: LocaleText
   image: string
   publicId: string
 }
@@ -41,8 +44,8 @@ const fetchNews = async () => {
     newsData.value = response.data.map((item: any) => ({
       id: item.id,
       created: item.created,
-      title: item.title,
-      text: item.description,
+      title: item.title,       // { de, en }
+      text: item.description,  // { de, en }
       image: item.titleImg?.url || '',
       publicId: item.titleImg?.publicId || ''
     }))
@@ -67,9 +70,9 @@ onMounted(() => { fetchNews() })
 
 <template>
   <div class="min-h-screen select-none relative overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 text-white">
-    <div class="relative z-10 container mx-auto px-4 py-8 md:py-30">
-      <h1 class="font-bold text-8xl md:text-6xl lg:text-8xl px-0 py-0 text-white mb-6 md:mb-12">
-        <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-pink-500">NEWS</span>
+    <div class="relative z-10 container mx-auto px-4 pt-8 pb-16 md:pt-10 md:pb-24">
+      <h1 class="font-bold text-5xl md:text-6xl px-0 py-0 text-white mb-6 md:mb-12">
+        <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">NEWS</span>
       </h1>
 
       <!-- Empty State -->
@@ -110,7 +113,7 @@ onMounted(() => { fetchNews() })
                 class="flex flex-col bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 transition-all duration-500 shadow-2xl hover:shadow-amber-500/10 group cursor-default h-full"
               >
                 <div class="relative h-64 overflow-hidden flex-shrink-0">
-                  <img :src="news.image" :alt="news.title" class="w-full h-full object-cover transition-transform duration-700" />
+                  <img :src="news.image" :alt="lt(news.title)" class="w-full h-full object-cover transition-transform duration-700" />
                   <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/30 to-transparent"></div>
                 </div>
                 <div class="p-6 flex flex-col flex-1 min-h-0">
@@ -118,9 +121,9 @@ onMounted(() => { fetchNews() })
                     <i class="bi bi-calendar3 text-sm mr-2"></i>
                     <span class="font-medium">{{ formatDate(news.created) }}</span>
                   </div>
-                  <h3 class="text-xl font-bold mb-3 line-clamp-2 h-[56px]">{{ truncateTitle(news.title, 60) }}</h3>
+                  <h3 class="text-xl font-bold mb-3 line-clamp-2 h-[56px]">{{ truncateTitle(lt(news.title), 60) }}</h3>
                   <div class="flex-1 min-h-0 overflow-hidden">
-                    <p class="text-gray-300 text-sm leading-relaxed line-clamp-4">{{ truncateText(news.text, 240) }}</p>
+                    <p class="text-gray-300 text-sm leading-relaxed line-clamp-4">{{ truncateText(lt(news.text), 240) }}</p>
                   </div>
                 </div>
               </div>
@@ -137,8 +140,8 @@ onMounted(() => { fetchNews() })
               <i class="bi bi-calendar3 text-sm mr-2"></i>
               <span class="font-medium">{{ formatDate(news.created) }}</span>
             </div>
-            <h3 class="text-xl font-bold mb-3">{{ truncateTitle(news.title, 50) }}</h3>
-            <p class="text-gray-300 text-sm leading-relaxed">{{ truncateText(news.text, 150) }}</p>
+            <h3 class="text-xl font-bold mb-3">{{ truncateTitle(lt(news.title), 50) }}</h3>
+            <p class="text-gray-300 text-sm leading-relaxed">{{ truncateText(lt(news.text), 150) }}</p>
           </div>
         </div>
       </div>

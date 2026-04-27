@@ -1,10 +1,24 @@
 import { Router } from 'express';
 import uploadTo, { cloudinary } from '../config/Cloudinary.js';
 import Member from '../models/MemberModel.js'
+import authenticate from '../middleware/authenticate.js';
 
 const router = Router();
 
-router.post('/', uploadTo('SHUTTERVERSE/MEMBER').single('profilImg'), async (req, res) => {
+function parseMemberFields(body) {
+    return {
+        firstName: body.firstName,
+        lastName: body.lastName,
+        description: { de: body.description_de || null, en: body.description_en || null },
+        roles: {
+            de: JSON.parse(body.roles_de || '[]'),
+            en: JSON.parse(body.roles_en || '[]'),
+        },
+        socialMedia: body.socialMedia ? JSON.parse(body.socialMedia) : [],
+    };
+}
+
+router.post('/', authenticate, uploadTo('SHUTTERVERSE/MEMBER').single('profilImg'), async (req, res) => {
 
     const rollback = async () => {
         if (!req.file) return;
@@ -18,10 +32,7 @@ router.post('/', uploadTo('SHUTTERVERSE/MEMBER').single('profilImg'), async (req
                 url: req.file.path,
                 publicId: req.file.filename
             } : null,
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            description: req.body.description,
-            socialMedia: req.body.socialMedia
+            ...parseMemberFields(req.body),
         });
         await member.save();
         res.json(member);
@@ -47,10 +58,10 @@ router.get('/', async (req, res) => {
 });
 
 
-router.patch('/:id', uploadTo('SHUTTERVERSE/MEMBER').single('profilImg'), async (req, res) => {
+router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/MEMBER').single('profilImg'), async (req, res) => {
     try {
         const update = {
-            ...req.body,
+            ...parseMemberFields(req.body),
             ...(req.file && {
                 profilImg: {
                     url: req.file.path,
@@ -83,7 +94,7 @@ router.patch('/:id', uploadTo('SHUTTERVERSE/MEMBER').single('profilImg'), async 
 });
 
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticate, async (req, res) => {
     try {
         const member = await Member.findOneAndDelete({ id: req.params.id });
         if (!member) {

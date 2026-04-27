@@ -1,10 +1,18 @@
 import { Router } from 'express';
 import uploadTo, { cloudinary } from '../config/Cloudinary.js'
 import News from '../models/NewsModel.js'
+import authenticate from '../middleware/authenticate.js';
 
 const router = Router();
 
-router.post('/', uploadTo('SHUTTERVERSE/NEWS').single('titleImg'), async (req, res) => {
+function parseNewsFields(body) {
+    return {
+        title: { de: body.title_de, en: body.title_en || null },
+        description: { de: body.description_de, en: body.description_en || null },
+    };
+}
+
+router.post('/', authenticate, uploadTo('SHUTTERVERSE/NEWS').single('titleImg'), async (req, res) => {
 
     const rollback = async () => {
         if (!req.file) return;
@@ -18,8 +26,7 @@ router.post('/', uploadTo('SHUTTERVERSE/NEWS').single('titleImg'), async (req, r
                 url: req.file.path,
                 publicId: req.file.filename
             } : null,
-            title: req.body.title,
-            description: req.body.description
+            ...parseNewsFields(req.body),
         })
         await news.save();
         res.json(news);
@@ -45,10 +52,10 @@ router.get('/', async (req, res) => {
 });
 
 
-router.patch('/:id', uploadTo('SHUTTERVERSE/NEWS').single('titleImg'), async (req, res) => {
+router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/NEWS').single('titleImg'), async (req, res) => {
     try {
         const update = {
-            ...req.body,
+            ...parseNewsFields(req.body),
             ...(req.file && {
                 titleImg: {
                     url: req.file.path,
@@ -78,7 +85,7 @@ router.patch('/:id', uploadTo('SHUTTERVERSE/NEWS').single('titleImg'), async (re
 });
 
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticate, async (req, res) => {
     try {
         const news = await News.findOneAndDelete({ id: req.params.id });
         if (!news) {

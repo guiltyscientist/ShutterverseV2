@@ -2,8 +2,11 @@
 import { ref, computed, onMounted } from 'vue'
 import axios from 'axios'
 import { useLocale } from '../composables/useLocale'
+import { useLocalText } from '../composables/useLocalText'
+import type { LocaleText, LocaleArr } from '../composables/useLocalText'
 
 const { t } = useLocale()
+const { lt, ltArr } = useLocalText()
 
 interface SocialMedia {
   platform: 'linkedin' | 'instagram' | 'twitter' | 'github' | 'facebook' | 'youtube' | 'website' | 'behance' | 'dribbble'
@@ -14,7 +17,8 @@ interface TeamMember {
   id: number | string
   firstName: string
   lastName: string
-  roles: string[]
+  roles: LocaleArr
+  description?: LocaleText
   profilImg?: { url: string, publicId: string }
   socialMedia: SocialMedia[]
 }
@@ -84,15 +88,15 @@ onMounted(() => { fetchTeam() })
 </script>
 
 <template>
-  <div class="min-h-screen select-none bg-gradient-to-br from-gray-900 to-gray-950 text-white overflow-hidden">
+  <div class="min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-7.5rem)] relative select-none bg-gradient-to-br from-gray-900 to-gray-950 text-white overflow-hidden">
     <div class="absolute inset-0 overflow-hidden">
-      <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full mix-blend-multiply filter blur-3xl"></div>
-      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full mix-blend-multiply filter blur-3xl"></div>
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/5 rounded-full mix-blend-multiply filter blur-3xl"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-500/5 rounded-full mix-blend-multiply filter blur-3xl"></div>
     </div>
 
-    <div class="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
-      <div class="max-w-7xl mx-auto text-center mb-12">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">{{ t.team.title }}</h1>
+    <div class="relative z-10 py-6 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto text-center mb-6">
+        <h1 class="text-4xl md:text-5xl font-bold mb-2">{{ t.team.title }}</h1>
       </div>
 
       <div class="max-w-7xl mx-auto">
@@ -110,7 +114,7 @@ onMounted(() => { fetchTeam() })
           <div
             v-for="member in teamMembers"
             :key="member.id"
-            class="group bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 hover:border-amber-500/30 transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl hover:shadow-amber-500/10"
+            class="group bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 hover:border-amber-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-500/10"
           >
             <div class="relative h-64 overflow-hidden">
               <img
@@ -126,13 +130,13 @@ onMounted(() => { fetchTeam() })
 
               <div class="mb-6 flex flex-wrap gap-2">
                 <span
-                  v-for="(role, index) in member.roles"
+                  v-for="(role, index) in ltArr(member.roles)"
                   :key="index"
                   class="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-300 group-hover:scale-105"
                   :class="{
                     'bg-amber-500/20 text-amber-300 border border-amber-500/30': index === 0,
-                    'bg-blue-500/20 text-blue-300 border border-blue-500/30': index === 1,
-                    'bg-purple-500/20 text-purple-300 border border-purple-500/30': index > 1
+                    'bg-amber-500/10 text-amber-200 border border-amber-500/20': index === 1,
+                    'bg-gray-700/60 text-gray-300 border border-gray-600/40': index > 1
                   }"
                 >{{ role }}</span>
               </div>

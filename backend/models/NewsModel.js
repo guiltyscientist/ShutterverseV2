@@ -6,8 +6,8 @@ const NewsSchema = new Schema({
         url: { type: String, default: null },
         publicId: { type: String, default: null }
     },
-    title: { type: String, required: true },
-    description: { type: String, required: true },
+    title: { de: { type: String, required: true }, en: { type: String, default: null } },
+    description: { de: { type: String, required: true }, en: { type: String, default: null } },
     created: { type: Date, default: Date.now }
 }, { versionKey: false });
 

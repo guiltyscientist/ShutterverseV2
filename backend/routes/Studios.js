@@ -1,10 +1,19 @@
 import { Router } from 'express';
 import uploadTo, { cloudinary } from '../config/Cloudinary.js';
 import Studio from '../models/StudioModel.js';
+import authenticate from '../middleware/authenticate.js';
 
 const router = Router();
 
-router.post('/', uploadTo('SHUTTERVERSE/STUDIOS').fields([
+function parseStudioFields(body) {
+    return {
+        title: { de: body.title_de, en: body.title_en || null },
+        description: { de: body.description_de || null, en: body.description_en || null },
+        equipment: { de: body.equipment_de || null, en: body.equipment_en || null },
+    };
+}
+
+router.post('/', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
     { name: 'titleImg', maxCount: 1 },
     { name: 'images' }
 ]), async (req, res) => {
@@ -21,8 +30,7 @@ router.post('/', uploadTo('SHUTTERVERSE/STUDIOS').fields([
     try {
         const studio = new Studio({
             id: req.body.id,
-            title: req.body.title,
-            description: req.body.description,
+            ...parseStudioFields(req.body),
             titleImg: req.files['titleImg'] ? {
                 url: req.files['titleImg'][0].path,
                 publicId: req.files['titleImg'][0].filename
@@ -72,7 +80,7 @@ router.get('/title-images', async (req, res) => {
 });
 
 
-router.patch('/:id', uploadTo('SHUTTERVERSE/STUDIOS').fields([
+router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
     { name: 'titleImg', maxCount: 1 },
     { name: 'images' }
 ]), async (req, res) => {
@@ -88,7 +96,7 @@ router.patch('/:id', uploadTo('SHUTTERVERSE/STUDIOS').fields([
 
     try {
         const update = {
-            ...req.body,
+            ...parseStudioFields(req.body),
             ...(req.files['titleImg'] && {
                 titleImg: {
                     url: req.files['titleImg'][0].path,
@@ -126,7 +134,7 @@ router.patch('/:id', uploadTo('SHUTTERVERSE/STUDIOS').fields([
 });
 
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticate, async (req, res) => {
     try {
         const studio = await Studio.findOneAndDelete({ id: req.params.id });
         if (!studio) {
@@ -149,7 +157,7 @@ router.delete('/:id', async (req, res) => {
 });
 
 
-router.delete('/:id/images/:publicId', async (req, res) => {
+router.delete('/:id/images/:publicId', authenticate, async (req, res) => {
     try {
         await cloudinary.uploader.destroy(req.params.publicId);
         await Studio.findOneAndUpdate(

@@ -20,37 +20,30 @@ const locations = computed(() => [
 </script>
 
 <template>
-  <div class="min-h-screen select-none bg-gradient-to-br from-gray-900 to-gray-950 text-white overflow-hidden">
+  <div class="min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-7.5rem)] relative select-none bg-gradient-to-br from-gray-900 to-gray-950 text-white overflow-hidden flex flex-col justify-center">
     <!-- Background decorative elements -->
     <div class="absolute inset-0 overflow-hidden">
-      <div class="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/10 rounded-full mix-blend-multiply filter blur-3xl"></div>
-      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-purple-500/10 rounded-full mix-blend-multiply filter blur-3xl"></div>
+      <div class="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/5 rounded-full mix-blend-multiply filter blur-3xl"></div>
+      <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-500/5 rounded-full mix-blend-multiply filter blur-3xl"></div>
     </div>
 
     <!-- Main Content -->
-    <div class="relative z-10 py-16 px-4 sm:px-6 lg:px-8">
-      <!-- Header -->
-      <div class="max-w-7xl mx-auto text-center mb-12">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">
-          {{ t.location.title }}
-        </h1>
-      </div>
-
+    <div class="relative z-10 py-8 px-4 sm:px-6 lg:px-8">
       <!-- Location Cards -->
       <div class="max-w-7xl mx-auto">
-        <div v-for="location in locations" :key="location.id" class="mb-16">
+        <div v-for="location in locations" :key="location.id" class="mb-0">
           <!-- Desktop Layout (Map left, Info right) -->
-          <div class="hidden lg:flex flex-col lg:flex-row gap-8 bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 p-6">
+          <div class="hidden lg:flex flex-col lg:flex-row gap-6 bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 p-4">
             <!-- Left Column: Map -->
             <div class="lg:w-1/2">
               <div class="bg-gray-900 rounded-xl overflow-hidden shadow-2xl h-full">
                 <!-- Map Container -->
-                <div class="relative h-full min-h-[500px]">
+                <div class="relative h-full min-h-[340px]">
                   <iframe
                     :src="location.mapEmbedUrl"
                     width="100%"
                     height="100%"
-                    style="border:0; min-height: 500px;"
+                    style="border:0; min-height: 340px;"
                     allowfullscreen=""
                     loading="lazy"
                     referrerpolicy="no-referrer-when-downgrade"
@@ -77,48 +70,44 @@ const locations = computed(() => [
             </div>
 
             <!-- Right Column: Transportation Information -->
-            <div class="lg:w-1/2 flex flex-col justify-center p-6 lg:p-8">
+            <div class="lg:w-1/2 flex flex-col justify-center p-4 lg:p-6">
               <!-- Title -->
-              <h2 class="text-3xl font-bold mb-6 flex items-center">
-                <svg class="w-8 h-8 mr-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 11111.314 0z" />
+              <h2 class="text-2xl font-bold mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>
                 {{ t.location.gettingHere }}
               </h2>
 
               <!-- By Car -->
-              <div class="mb-8">
-                <div class="flex items-center mb-4">
-                  <div class="p-2 bg-amber-500/20 rounded-lg mr-3">
-                    <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <div class="p-1.5 bg-amber-500/20 rounded-lg mr-3">
+                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.517l2.257-1.128a1 1 0 00.502-1.21L9.228 3.683A1 1 0 008.279 3H5z" />
                     </svg>
                   </div>
-                  <h3 class="text-xl font-semibold">{{ t.location.byCar }}</h3>
+                  <h3 class="text-base font-semibold">{{ t.location.byCar }}</h3>
                 </div>
-                <p class="text-gray-300 leading-relaxed pl-12">
-                  {{ location.descriptionByCar }}
-                </p>
+                <p class="text-gray-300 text-sm leading-relaxed pl-10">{{ location.descriptionByCar }}</p>
               </div>
 
               <!-- By Public Transport -->
-              <div class="mb-8">
-                <div class="flex items-center mb-4">
-                  <div class="p-2 bg-blue-500/20 rounded-lg mr-3">
-                    <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="mb-4">
+                <div class="flex items-center mb-2">
+                  <div class="p-1.5 bg-amber-500/20 rounded-lg mr-3">
+                    <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                   </div>
-                  <h3 class="text-xl font-semibold">{{ t.location.byTransport }}</h3>
+                  <h3 class="text-base font-semibold">{{ t.location.byTransport }}</h3>
                 </div>
-                <p class="text-gray-300 leading-relaxed pl-12">
-                  {{ location.descriptionByPublicTransport }}
-                </p>
+                <p class="text-gray-300 text-sm leading-relaxed pl-10">{{ location.descriptionByPublicTransport }}</p>
               </div>
 
               <!-- Get Directions Button -->
-              <div class="mt-8 pt-6 border-t border-gray-700">
+              <div class="mt-4 pt-4 border-t border-gray-700">
                 <a
                   :href="`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(location.address)}`"
                   target="_blank"
