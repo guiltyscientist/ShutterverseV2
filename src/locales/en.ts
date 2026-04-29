@@ -11,7 +11,8 @@ const en: typeof de = {
   },
   loading: 'Loading...',
   news: {
-    empty: 'No news available.',
+    empty: 'No news at the moment',
+    emptyDesc: 'Check back soon – we\'ll keep you in the loop.',
     backToLatest: 'Back to Latest News',
   },
   studios: {
@@ -38,6 +39,8 @@ const en: typeof de = {
     byTransport: 'By Public Transportation',
     getDirections: 'Get Directions',
     getDirectionsMaps: 'Get Directions on Google Maps',
+    mapConsent: 'This map is provided by Google Maps. Loading it will allow Google to set cookies.',
+    mapConsentBtn: 'Show Map',
     noLocations: 'No Locations Available',
     noLocationsDesc: 'Check back soon for our studio locations.',
     scrollMore: 'Scroll down to view more locations ↓',

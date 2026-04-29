@@ -1,0 +1,128 @@
+DATENSCHUTZERKLÄRUNG
+====================
+ShutterVision Studios GmbH
+Mühlgasse 8, 2544 Leobersdorf, Österreich
+E-Mail: info@shuttervision.com
+
+Letzte Aktualisierung: [DATUM EINFÜGEN]
+
+
+1. ALLGEMEINES
+--------------
+Der Schutz Ihrer persönlichen Daten ist uns ein besonderes Anliegen. Wir
+verarbeiten Ihre Daten daher ausschließlich auf Grundlage der gesetzlichen
+Bestimmungen (DSGVO, TKG 2003 bzw. TKG 2021).
+
+
+2. VERANTWORTLICHER
+-------------------
+Verantwortlicher im Sinne der DSGVO ist:
+
+ShutterVision Studios GmbH
+Mühlgasse 8, 2544 Leobersdorf
+Österreich
+E-Mail: info@shuttervision.com
+Telefon: +43 123 456789
+
+
+3. WELCHE DATEN WIR SPEICHERN
+------------------------------
+
+3.1 Server-Logfiles
+Beim Besuch unserer Website speichert unser Webserver automatisch folgende
+Daten in sogenannten Server-Logfiles:
+- IP-Adresse (anonymisiert)
+- Datum und Uhrzeit des Zugriffs
+- Aufgerufene Seite / URL
+- Browser-Typ und -Version
+- Betriebssystem
+- Referrer-URL (zuvor besuchte Seite)
+
+Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an
+der Sicherheit und dem ordnungsgemäßen Betrieb der Website).
+Speicherdauer: 7 Tage, danach automatische Löschung.
+
+3.2 Spracheinstellung (localStorage)
+Wenn Sie die Sprache der Website wechseln, speichern wir Ihre Auswahl
+(„de" oder „en") im localStorage Ihres Browsers unter dem Schlüssel
+„shutterverse_locale". Diese Information verlässt Ihr Gerät nicht und
+wird nicht an uns übertragen.
+Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (technisch notwendige
+Funktion zur Verbesserung der Nutzererfahrung).
+Speicherdauer: Bis Sie den Browser-Cache leeren.
+
+3.3 Kontaktaufnahme per E-Mail oder Telefon
+Wenn Sie uns per E-Mail oder Telefon kontaktieren, werden die von Ihnen
+übermittelten Daten (Name, E-Mail-Adresse, Telefonnummer, Inhalt Ihrer
+Nachricht) zur Bearbeitung Ihrer Anfrage gespeichert.
+Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragsanbahnung) bzw.
+Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse).
+Speicherdauer: Solange die Anfrage in Bearbeitung ist, danach nach
+gesetzlichen Aufbewahrungsfristen (in der Regel 7 Jahre für
+geschäftliche Korrespondenz).
+
+
+4. GOOGLE MAPS
+--------------
+Auf unserer Website bieten wir die Möglichkeit, eine interaktive Karte von
+Google Maps einzublenden. Google Maps wird von Google Ireland Limited,
+Gordon House, Barrow Street, Dublin 4, Irland, bereitgestellt.
+
+Die Karte wird erst geladen, wenn Sie aktiv auf „Karte anzeigen" klicken
+(sog. Two-Click-Lösung). Erst durch diesen Klick werden Verbindungen zu
+Google-Servern hergestellt, und Google kann Cookies setzen sowie Ihre
+IP-Adresse verarbeiten.
+
+Rechtsgrundlage für die Verarbeitung nach Ihrer Einwilligung:
+Art. 6 Abs. 1 lit. a DSGVO.
+
+Informationen zur Datenverarbeitung durch Google finden Sie unter:
+https://policies.google.com/privacy
+
+Da Google Daten in die USA überträgt, weisen wir darauf hin, dass dies auf
+Grundlage der Standardvertragsklauseln der EU-Kommission erfolgt.
+
+
+5. KEINE WEITEREN TRACKING-TOOLS
+----------------------------------
+Wir verwenden auf dieser Website:
+- kein Google Analytics oder andere Web-Analytics-Dienste
+- keine Social-Media-Plugins (Facebook, Instagram etc.)
+- keine Werbe-Cookies oder Retargeting-Tools
+
+
+6. IHRE RECHTE
+--------------
+Sie haben gegenüber uns folgende Rechte hinsichtlich Ihrer
+personenbezogenen Daten:
+
+- Recht auf Auskunft (Art. 15 DSGVO)
+- Recht auf Berichtigung (Art. 16 DSGVO)
+- Recht auf Löschung / „Recht auf Vergessenwerden" (Art. 17 DSGVO)
+- Recht auf Einschränkung der Verarbeitung (Art. 18 DSGVO)
+- Recht auf Datenübertragbarkeit (Art. 20 DSGVO)
+- Recht auf Widerspruch (Art. 21 DSGVO)
+- Recht auf Widerruf einer erteilten Einwilligung (Art. 7 Abs. 3 DSGVO)
+
+Zur Ausübung dieser Rechte wenden Sie sich bitte an:
+info@shuttervision.com
+
+Außerdem haben Sie das Recht, sich bei der österreichischen
+Datenschutzbehörde zu beschweren:
+Datenschutzbehörde
+Barichgasse 40-42
+1030 Wien
+dsb@dsb.gv.at | www.dsb.gv.at
+
+
+7. AKTUALITÄT UND ÄNDERUNGEN
+------------------------------
+Diese Datenschutzerklärung ist aktuell gültig und hat den Stand [DATUM].
+Wir behalten uns vor, diese Datenschutzerklärung gelegentlich anzupassen,
+damit sie stets den aktuellen rechtlichen Anforderungen entspricht.
+
+====================
+HINWEIS: Diese Vorlage dient als Ausgangsbasis und ersetzt keine
+individuelle Rechtsberatung. Bitte lassen Sie den finalen Text von
+einem auf Datenschutzrecht spezialisierten Anwalt prüfen.
+====================

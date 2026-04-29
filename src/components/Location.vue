@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useLocale } from '../composables/useLocale'
 
 const { t } = useLocale()
+
+// Map is not loaded until the user explicitly clicks — avoids Google cookies
+// without prior consent (DSGVO / ePrivacy compliance).
+const mapConsented = ref(false)
+const loadMap = () => { mapConsented.value = true }
 
 const MAP_EMBED_URL = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2673.6901411103454!2d16.206907689934948!3d47.92303269701518!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x476db654a87903ef%3A0x13c1734954a91bd0!2sM%C3%BChlgasse%208%2C%202544%20Leobersdorf!5e0!3m2!1sde!2sat!4v1769086317899!5m2!1sde!2sat"
 const ADDRESS = "Mühlgasse 8, 2544 Leobersdorf, Austria"
@@ -20,7 +25,7 @@ const locations = computed(() => [
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-7.5rem)] relative select-none bg-gradient-to-br from-gray-900 to-gray-950 text-white overflow-hidden flex flex-col justify-center">
+  <div class="min-h-screen relative select-none bg-gradient-to-br from-gray-900 to-gray-950 text-white overflow-hidden flex flex-col">
     <!-- Background decorative elements -->
     <div class="absolute inset-0 overflow-hidden">
       <div class="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/5 rounded-full mix-blend-multiply filter blur-3xl"></div>
@@ -28,49 +33,64 @@ const locations = computed(() => [
     </div>
 
     <!-- Main Content -->
-    <div class="relative z-10 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="relative z-10 flex flex-col justify-center flex-1 pt-4 pb-32 px-4 sm:px-6 lg:px-8">
       <!-- Location Cards -->
-      <div class="max-w-7xl mx-auto">
+      <div class="max-w-6xl w-full mx-auto">
         <div v-for="location in locations" :key="location.id" class="mb-0">
           <!-- Desktop Layout (Map left, Info right) -->
-          <div class="hidden lg:flex flex-col lg:flex-row gap-6 bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 p-4">
+          <div class="hidden lg:flex flex-col lg:flex-row gap-6 bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 p-5">
             <!-- Left Column: Map -->
-            <div class="lg:w-1/2">
+            <div v-reveal="{ direction: 'left', duration: 700 }" class="lg:w-1/2">
               <div class="bg-gray-900 rounded-xl overflow-hidden shadow-2xl h-full">
-                <!-- Map Container -->
-                <div class="relative h-full min-h-[340px]">
-                  <iframe
-                    :src="location.mapEmbedUrl"
-                    width="100%"
-                    height="100%"
-                    style="border:0; min-height: 340px;"
-                    allowfullscreen=""
-                    loading="lazy"
-                    referrerpolicy="no-referrer-when-downgrade"
-                    class="absolute inset-0"
-                  ></iframe>
+                <div class="relative h-full min-h-[480px]">
 
-                  <!-- Map Overlay with Location Info -->
-                  <div class="absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-sm rounded-lg p-4">
-                    <div class="flex items-start space-x-3">
-                      <div class="flex-shrink-0">
-                        <svg class="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <!-- Map loaded after consent -->
+                  <template v-if="mapConsented">
+                    <iframe
+                      :src="location.mapEmbedUrl"
+                      width="100%" height="100%"
+                      style="border:0; min-height:480px;"
+                      allowfullscreen="" loading="lazy"
+                      referrerpolicy="no-referrer-when-downgrade"
+                      class="absolute inset-0"
+                    ></iframe>
+                    <div class="absolute bottom-4 left-4 right-4 bg-black/70 backdrop-blur-sm rounded-lg p-4">
+                      <div class="flex items-start space-x-3">
+                        <svg class="w-6 h-6 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                      </div>
-                      <div>
-                        <h3 class="font-semibold text-white">{{ location.title }}</h3>
-                        <p class="text-gray-300 text-sm">{{ location.address }}</p>
+                        <div>
+                          <h3 class="font-semibold text-white">{{ location.title }}</h3>
+                          <p class="text-gray-300 text-sm">{{ location.address }}</p>
+                        </div>
                       </div>
                     </div>
+                  </template>
+
+                  <!-- Consent placeholder -->
+                  <div v-else class="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gray-800/60 p-6 text-center">
+                    <svg class="w-10 h-10 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <p class="text-gray-300 text-sm max-w-xs">
+                      {{ t.location.mapConsent }}
+                    </p>
+                    <button
+                      @click="loadMap"
+                      class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105 text-sm"
+                    >
+                      {{ t.location.mapConsentBtn }}
+                    </button>
                   </div>
+
                 </div>
               </div>
             </div>
 
             <!-- Right Column: Transportation Information -->
-            <div class="lg:w-1/2 flex flex-col justify-center p-4 lg:p-6">
+            <div v-reveal="{ direction: 'right', duration: 700, delay: 150 }" class="lg:w-1/2 flex flex-col justify-center p-6 lg:p-10">
               <!-- Title -->
               <h2 class="text-2xl font-bold mb-4 flex items-center">
                 <svg class="w-6 h-6 mr-2 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -127,21 +147,33 @@ const locations = computed(() => [
           <div class="lg:hidden bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50">
             <!-- Map on Mobile -->
             <div class="relative h-80 bg-gray-900">
-              <iframe
-                :src="location.mapEmbedUrl"
-                width="100%"
-                height="100%"
-                style="border:0;"
-                allowfullscreen=""
-                loading="lazy"
-                referrerpolicy="no-referrer-when-downgrade"
-                class="absolute inset-0"
-              ></iframe>
+              <template v-if="mapConsented">
+                <iframe
+                  :src="location.mapEmbedUrl"
+                  width="100%" height="100%"
+                  style="border:0;"
+                  allowfullscreen="" loading="lazy"
+                  referrerpolicy="no-referrer-when-downgrade"
+                  class="absolute inset-0"
+                ></iframe>
+                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4">
+                  <h2 class="text-2xl font-bold mb-1">{{ location.title }}</h2>
+                  <p class="text-gray-300 text-sm">{{ location.address }}</p>
+                </div>
+              </template>
 
-              <!-- Map Overlay -->
-              <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-4">
-                <h2 class="text-2xl font-bold mb-1">{{ location.title }}</h2>
-                <p class="text-gray-300 text-sm">{{ location.address }}</p>
+              <div v-else class="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-gray-800/60 p-6 text-center">
+                <svg class="w-8 h-8 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <p class="text-gray-300 text-sm">{{ t.location.mapConsent }}</p>
+                <button
+                  @click="loadMap"
+                  class="px-5 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold rounded-lg transition-all duration-300 text-sm"
+                >
+                  {{ t.location.mapConsentBtn }}
+                </button>
               </div>
             </div>
 

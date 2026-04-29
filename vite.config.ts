@@ -13,6 +13,7 @@ export default defineConfig({
     },
   },
   server: {
+    host: true,   // bind to 0.0.0.0 → erreichbar im lokalen Netzwerk
     proxy: {
       '/api': 'http://localhost:3000',
     },

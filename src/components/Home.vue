@@ -90,8 +90,8 @@ onUnmounted(() => {
 
     <!-- Welcome overlay -->
     <div class="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none">
-      <p class="text-white/70 text-base md:text-xl tracking-[0.3em] uppercase font-light mb-5">Welcome to the</p>
-      <img src="../assets/logos/BIG.png" alt="Shutterverse" class="w-72 md:w-[28rem] h-auto select-none drop-shadow-2xl" />
+      <p class="text-white/70 text-base md:text-xl tracking-[0.3em] uppercase font-light mb-5 animate-fadein-down">Welcome to the</p>
+      <img src="../assets/logos/BIG.png" alt="Shutterverse" class="w-72 md:w-[28rem] h-auto select-none drop-shadow-2xl animate-fadein-up" />
     </div>
 
     <!-- Left nav -->

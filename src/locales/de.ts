@@ -9,7 +9,8 @@ const de = {
   },
   loading: 'Laden...',
   news: {
-    empty: 'Keine News vorhanden.',
+    empty: 'Aktuell keine Neuigkeiten',
+    emptyDesc: 'Schau bald wieder vorbei – wir halten dich auf dem Laufenden.',
     backToLatest: 'Zu den neuesten News',
   },
   studios: {
@@ -36,6 +37,8 @@ const de = {
     byTransport: 'Mit öffentlichen Verkehrsmitteln',
     getDirections: 'Wegbeschreibung',
     getDirectionsMaps: 'Route auf Google Maps',
+    mapConsent: 'Diese Karte wird von Google Maps bereitgestellt. Durch das Laden werden Cookies von Google gesetzt.',
+    mapConsentBtn: 'Karte anzeigen',
     noLocations: 'Keine Standorte verfügbar',
     noLocationsDesc: 'Schau bald für unsere Studiostandorte vorbei.',
     scrollMore: 'Nach unten scrollen für weitere Standorte ↓',

@@ -71,13 +71,17 @@ onMounted(() => { fetchNews() })
 <template>
   <div class="min-h-screen select-none relative overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 text-white">
     <div class="relative z-10 container mx-auto px-4 pt-8 pb-16 md:pt-10 md:pb-24">
-      <h1 class="font-bold text-5xl md:text-6xl px-0 py-0 text-white mb-6 md:mb-12">
-        <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">NEWS</span>
+      <h1 v-reveal class="font-bold text-5xl md:text-6xl text-white mb-6 md:mb-12 text-center">
+        NEWS
       </h1>
 
       <!-- Empty State -->
-      <div v-if="newsData.length === 0" class="text-center py-16">
-        <p class="text-gray-400 text-xl">{{ t.news.empty }}</p>
+      <div v-if="newsData.length === 0" v-reveal class="flex flex-col items-center justify-center py-20 text-center">
+        <svg class="w-20 h-20 text-gray-600 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+        </svg>
+        <h3 class="text-2xl font-semibold text-gray-300 mb-3">{{ t.news.empty }}</h3>
+        <p class="text-gray-500 max-w-sm">{{ t.news.emptyDesc }}</p>
       </div>
 
       <!-- DESKTOP VERSION -->
@@ -108,8 +112,9 @@ onMounted(() => { fetchNews() })
           <div class="absolute inset-0 flex items-center justify-center">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full h-[550px]">
               <div
-                v-for="news in currentNewsSet"
+                v-for="(news, i) in currentNewsSet"
                 :key="news.id"
+                v-reveal="{ delay: i * 100 }"
                 class="flex flex-col bg-gray-800/50 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 transition-all duration-500 shadow-2xl hover:shadow-amber-500/10 group cursor-default h-full"
               >
                 <div class="relative h-64 overflow-hidden flex-shrink-0">
@@ -135,7 +140,7 @@ onMounted(() => { fetchNews() })
       <!-- MOBILE VERSION -->
       <div v-if="newsData.length > 0" class="md:hidden">
         <div class="max-h-[70vh] overflow-y-auto pr-2 space-y-4">
-          <div v-for="news in newsData" :key="news.id" class="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 p-6">
+          <div v-for="(news, i) in newsData" :key="news.id" v-reveal="{ delay: i * 80 }" class="bg-gray-800/50 backdrop-blur-sm rounded-2xl border border-gray-700/50 p-6">
             <div class="flex items-center text-amber-400 mb-3">
               <i class="bi bi-calendar3 text-sm mr-2"></i>
               <span class="font-medium">{{ formatDate(news.created) }}</span>

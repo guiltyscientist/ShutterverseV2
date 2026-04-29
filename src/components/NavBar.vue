@@ -18,9 +18,6 @@ const menuOpen = () => {
   open.value = !open.value
 }
 
-const DURATION = 500
-const easeOut = (t: number) => 1 - Math.pow(1 - t, 3)
-
 const smoothScroll = (href: string, event: Event) => {
   event.preventDefault()
   const targetId = href.replace('#', '')
@@ -29,19 +26,8 @@ const smoothScroll = (href: string, event: Event) => {
   if (targetElement) {
     const navEl = document.getElementById('main-navbar')
     const navBottom = navEl?.getBoundingClientRect().bottom ?? 80
-    const targetY = Math.round(targetElement.getBoundingClientRect().top + window.pageYOffset - navBottom)
-
-    const startY = window.scrollY
-    const distance = targetY - startY
-    let startTime: number | null = null
-
-    const step = (ts: number) => {
-      if (!startTime) startTime = ts
-      const progress = Math.min((ts - startTime) / DURATION, 1)
-      window.scrollTo(0, startY + distance * easeOut(progress))
-      if (progress < 1) requestAnimationFrame(step)
-    }
-    requestAnimationFrame(step)
+    const targetPosition = Math.round(targetElement.getBoundingClientRect().top + window.pageYOffset - navBottom)
+    window.scrollTo({ top: targetPosition + 2, behavior: 'smooth' })
   }
 
   if (open.value) open.value = false

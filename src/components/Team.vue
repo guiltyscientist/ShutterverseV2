@@ -88,7 +88,7 @@ onMounted(() => { fetchTeam() })
 </script>
 
 <template>
-  <div class="min-h-[calc(100vh-5rem)] md:min-h-[calc(100vh-7.5rem)] relative select-none bg-gradient-to-br from-gray-900 to-gray-950 text-white overflow-hidden">
+  <div class="min-h-screen relative select-none bg-gradient-to-br from-gray-900 to-gray-950 text-white overflow-hidden flex flex-col justify-center">
     <div class="absolute inset-0 overflow-hidden">
       <div class="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/5 rounded-full mix-blend-multiply filter blur-3xl"></div>
       <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-500/5 rounded-full mix-blend-multiply filter blur-3xl"></div>
@@ -96,7 +96,7 @@ onMounted(() => { fetchTeam() })
 
     <div class="relative z-10 py-6 px-4 sm:px-6 lg:px-8">
       <div class="max-w-7xl mx-auto text-center mb-6">
-        <h1 class="text-4xl md:text-5xl font-bold mb-2">{{ t.team.title }}</h1>
+        <h1 v-reveal class="text-4xl md:text-5xl font-bold mb-2">{{ t.team.title }}</h1>
       </div>
 
       <div class="max-w-7xl mx-auto">
@@ -112,8 +112,9 @@ onMounted(() => { fetchTeam() })
         <!-- Grid -->
         <div v-else :class="['grid gap-8', gridColumns]">
           <div
-            v-for="member in teamMembers"
+            v-for="(member, i) in teamMembers"
             :key="member.id"
+            v-reveal="{ delay: i * 120 }"
             class="group bg-gray-800/30 backdrop-blur-sm rounded-2xl overflow-hidden border border-gray-700/50 hover:border-amber-500/30 transition-all duration-300 hover:shadow-2xl hover:shadow-amber-500/10"
           >
             <div class="relative h-64 overflow-hidden">

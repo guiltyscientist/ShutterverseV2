@@ -35,14 +35,14 @@ const impressumData = {
 
     <div class="relative z-10 container mx-auto px-4 pt-8 pb-12">
 
-      <h1 class="font-bold text-5xl md:text-6xl text-white mb-8">
+      <h1 v-reveal class="font-bold text-5xl md:text-6xl text-white mb-8">
         <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">IMPRESSUM</span>
       </h1>
 
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
         <!-- Left: Legal info -->
-        <div class="space-y-6">
+        <div v-reveal="{ direction: 'left', delay: 100 }" class="space-y-6">
           <div>
             <h2 class="text-xs font-semibold tracking-widest text-amber-400 uppercase mb-3">Unternehmen</h2>
             <div class="text-gray-300 space-y-1 text-sm leading-relaxed">
@@ -83,7 +83,7 @@ const impressumData = {
         </div>
 
         <!-- Right: Contact -->
-        <div class="space-y-6">
+        <div v-reveal="{ direction: 'right', delay: 200 }" class="space-y-6">
           <div>
             <h2 class="text-xs font-semibold tracking-widest text-amber-400 uppercase mb-3">Kontakt</h2>
             <div class="space-y-3">

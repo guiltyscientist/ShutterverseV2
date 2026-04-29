@@ -97,15 +97,19 @@ onMounted(() => { fetchStudios() })
 
       <div class="relative z-10 h-[calc(100vh-4rem)]">
         <div class="grid h-full" :style="`grid-template-columns: repeat(${studios.length}, 1fr)`">
-          <div v-for="studio in studios" :key="studio.id" class="relative overflow-hidden group">
+          <div v-for="(studio, index) in studios" :key="studio.id" class="relative overflow-hidden group">
             <div class="absolute inset-0 bg-cover bg-center transition-all duration-500 group-hover:brightness-110" :style="{ backgroundImage: `url(${studio.titleImg?.url})` }">
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
               <!-- Dark overlay that fades on hover -->
               <div class="absolute inset-0 bg-black/40 transition-opacity duration-500 group-hover:opacity-0"></div>
             </div>
             <div class="absolute inset-0 flex flex-col items-center justify-center p-8">
-              <h3 class="text-3xl font-bold text-white mb-4 text-center">{{ lt(studio.title) }}</h3>
+              <h3
+                v-reveal="{ direction: 'down', delay: index * 120, duration: 700 }"
+                class="text-3xl font-bold text-white mb-4 text-center"
+              >{{ lt(studio.title) }}</h3>
               <button
+                v-reveal="{ direction: 'up', delay: index * 120 + 150, duration: 700 }"
                 @click="scrollToStudioDetails(studio.id)"
                 class="flex items-center justify-center px-6 py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-white font-semibold rounded-lg transition-all duration-300 hover:scale-105 w-full max-w-xs"
               >
@@ -130,7 +134,7 @@ onMounted(() => { fetchStudios() })
 
       <!-- Mobile section title -->
       <div class="lg:hidden px-6 pt-16 pb-6 bg-gray-900">
-        <h1 class="font-bold text-5xl text-white">
+        <h1 v-reveal class="font-bold text-5xl text-white">
           <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">{{ t.studios.header }}</span>
         </h1>
       </div>
@@ -174,7 +178,7 @@ onMounted(() => { fetchStudios() })
         <!-- Studio Info -->
         <div class="lg:w-1/2 w-full flex items-center justify-center py-8 px-4 md:px-8 lg:px-16" :class="{ 'lg:order-1': index % 2 === 1 }">
           <div class="max-w-2xl w-full">
-            <div class="flex flex-col gap-3 mb-6">
+            <div v-reveal="{ delay: 100 }" class="flex flex-col gap-3 mb-6">
               <button
                 @click="scrollToGrid"
                 class="hidden lg:inline-flex items-center self-start px-3 py-1.5 bg-gray-800/50 hover:bg-gray-700/60 backdrop-blur-sm text-white text-sm font-medium rounded-lg transition-all duration-300 hover:scale-105 group border border-gray-700"
@@ -187,12 +191,12 @@ onMounted(() => { fetchStudios() })
               <h2 class="text-3xl md:text-4xl lg:text-5xl font-bold text-white">{{ lt(studio.title) }}</h2>
             </div>
 
-            <div class="mb-8">
+            <div v-reveal="{ delay: 200 }" class="mb-8">
               <h3 class="text-xl lg:text-2xl font-semibold text-amber-400 mb-3 lg:mb-4">{{ t.studios.about }}</h3>
               <p class="text-gray-300 text-base lg:text-lg leading-relaxed">{{ lt(studio.description) }}</p>
             </div>
 
-            <div v-if="lt(studio.equipment)" class="mb-8">
+            <div v-if="lt(studio.equipment)" v-reveal="{ delay: 300 }" class="mb-8">
               <h3 class="text-xl lg:text-2xl font-semibold text-amber-400 mb-3 lg:mb-4">{{ t.studios.equipment }}</h3>
               <div class="text-gray-200 space-y-2">
                 <div v-for="(item, idx) in lt(studio.equipment).split(',')" :key="idx" class="flex items-center">
