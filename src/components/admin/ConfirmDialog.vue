@@ -8,7 +8,7 @@
         </div>
         <div>
           <h3 class="text-white font-semibold mb-1">Löschen bestätigen</h3>
-          <p class="text-gray-400 text-sm" v-html="message"></p>
+          <p class="text-gray-400 text-sm">{{ message }}</p>
         </div>
       </div>
       <div class="flex justify-end gap-3">

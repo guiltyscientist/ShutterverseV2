@@ -37,7 +37,7 @@ router.post('/', authenticate, uploadTo('SHUTTERVERSE/NEWS').single('titleImg'),
             return res.status(409).json({ Error: `ID '${req.body.id}' is already taken` });
         }
 
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 
@@ -47,7 +47,7 @@ router.get('/', async (req, res) => {
         const news = await News.find();
         res.json(news);
     } catch (error) {
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 
@@ -80,7 +80,7 @@ router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/NEWS').single('titleIm
         if (req.file) {
             await cloudinary.uploader.destroy(req.file.filename)
         }
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 
@@ -98,7 +98,7 @@ router.delete('/:id', authenticate, async (req, res) => {
 
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 

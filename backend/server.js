@@ -11,6 +11,7 @@ import authRoutes from './routes/Auth.js'
 
 const app = express();
 
+app.set('trust proxy', 1); // Trust first proxy (needed for rate limiting behind reverse proxy/load balancer)
 app.use(helmet());
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',

@@ -15,7 +15,7 @@ function parseStudioFields(body) {
 
 router.post('/', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
     { name: 'titleImg', maxCount: 1 },
-    { name: 'images' }
+    { name: 'images', maxCount: 20 }
 ]), async (req, res) => {
 
     const rollback = async () => {
@@ -49,7 +49,7 @@ router.post('/', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
             return res.status(409).json({ Error: `ID '${req.body.id}' is already taken` });
         }
 
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 
@@ -59,7 +59,7 @@ router.get('/', async (req, res) => {
         const studios = await Studio.find();
         res.json(studios);
     } catch (error) {
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 
@@ -75,14 +75,14 @@ router.get('/title-images', async (req, res) => {
             }))
         });
     } catch (error) {
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 
 
 router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
     { name: 'titleImg', maxCount: 1 },
-    { name: 'images' }
+    { name: 'images', maxCount: 20 }
 ]), async (req, res) => {
 
     const rollback = async () => {
@@ -129,7 +129,7 @@ router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
         res.json({ success: true });
     } catch (error) {
         await rollback();
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 
@@ -152,21 +152,32 @@ router.delete('/:id', authenticate, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 
 
 router.delete('/:id/images/:publicId', authenticate, async (req, res) => {
     try {
+        // Verify the publicId actually belongs to this studio before deleting from Cloudinary
+        const studio = await Studio.findOne({ id: req.params.id });
+        if (!studio) {
+            return res.status(404).json({ Error: 'Studio was not found' });
+        }
+
+        const owned = studio.images.some(img => img.publicId === req.params.publicId);
+        if (!owned) {
+            return res.status(403).json({ Error: 'Image does not belong to this studio' });
+        }
+
         await cloudinary.uploader.destroy(req.params.publicId);
         await Studio.findOneAndUpdate(
             { id: req.params.id },
             { $pull: { images: { publicId: req.params.publicId } } }
-        )
+        );
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 })
 

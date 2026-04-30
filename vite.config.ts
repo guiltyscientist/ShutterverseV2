@@ -1,21 +1,28 @@
 import { fileURLToPath, URL } from 'node:url'
-
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
 
-export default defineConfig({
-  plugins: [tailwindcss(), vue(), vueDevTools()],
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    tailwindcss(),
+    vue(),
+    // DevTools nur im Development — nicht im Production-Build
+    ...(mode === 'development' ? [vueDevTools()] : []),
+  ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  build: {
+    sourcemap: false, // keine Source Maps im Production-Build
+  },
   server: {
-    host: true,   // bind to 0.0.0.0 → erreichbar im lokalen Netzwerk
+    host: true,
     proxy: {
-      '/api': 'http://localhost:3000',
+      '/api': process.env.VITE_API_URL ?? 'http://localhost:3000',
     },
   },
-})
+}))

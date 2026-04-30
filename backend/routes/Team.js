@@ -5,16 +5,40 @@ import authenticate from '../middleware/authenticate.js';
 
 const router = Router();
 
+const ALLOWED_URL_PROTOCOLS = /^https?:\/\//i;
+
+function safeParseJSON(str, fallback) {
+    try {
+        return JSON.parse(str);
+    } catch {
+        return fallback;
+    }
+}
+
+function sanitizeSocialMedia(raw) {
+    const parsed = Array.isArray(raw) ? raw : safeParseJSON(raw, []);
+    return parsed
+        .filter(item => item && typeof item === 'object')
+        .map(item => ({
+            platform: String(item.platform || '').slice(0, 50),
+            // Only allow http/https URLs — block javascript:, data:, etc.
+            url: typeof item.url === 'string' && ALLOWED_URL_PROTOCOLS.test(item.url)
+                ? item.url.slice(0, 500)
+                : '',
+        }))
+        .filter(item => item.url); // drop entries with no valid URL
+}
+
 function parseMemberFields(body) {
     return {
         firstName: body.firstName,
         lastName: body.lastName,
         description: { de: body.description_de || null, en: body.description_en || null },
         roles: {
-            de: JSON.parse(body.roles_de || '[]'),
-            en: JSON.parse(body.roles_en || '[]'),
+            de: safeParseJSON(body.roles_de || '[]', []),
+            en: safeParseJSON(body.roles_en || '[]', []),
         },
-        socialMedia: body.socialMedia ? JSON.parse(body.socialMedia) : [],
+        socialMedia: sanitizeSocialMedia(body.socialMedia),
     };
 }
 
@@ -43,7 +67,7 @@ router.post('/', authenticate, uploadTo('SHUTTERVERSE/MEMBER').single('profilImg
             return res.status(409).json({ Error: `ID '${req.body.id}' is already taken` });
         }
 
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 
@@ -53,7 +77,7 @@ router.get('/', async (req, res) => {
         const team = await Member.find();
         res.json(team);
     } catch (error) {
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 
@@ -89,7 +113,7 @@ router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/MEMBER').single('profi
         if (req.file) {
             await cloudinary.uploader.destroy(req.file.filename)
         }
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 
@@ -106,7 +130,7 @@ router.delete('/:id', authenticate, async (req, res) => {
         }
         res.json({ success: true });
     } catch (error) {
-        res.status(500).json({ Error: error.message });
+        res.status(500).json({ Error: 'Internal server error' });
     }
 });
 

@@ -73,6 +73,9 @@ const socialIcons: Record<string, { icon: string, color: string, bgColor: string
   }
 }
 
+// Block javascript: / data: / other unsafe protocols in social URLs
+const safeUrl = (url: string): string => /^https?:\/\//i.test(url) ? url : ''
+
 const gridColumns = computed(() => {
   const count = teamMembers.value.length
   if (count === 1) return 'grid-cols-1 max-w-2xl mx-auto'
@@ -145,9 +148,9 @@ onMounted(() => { fetchTeam() })
               <div v-if="member.socialMedia && member.socialMedia.length > 0" class="mt-4 pt-4 border-t border-gray-700/50">
                 <div class="flex flex-wrap gap-2">
                   <a
-                    v-for="social in member.socialMedia"
+                    v-for="social in member.socialMedia.filter(s => safeUrl(s.url))"
                     :key="social.platform"
-                    :href="social.url"
+                    :href="safeUrl(social.url)"
                     target="_blank"
                     rel="noopener noreferrer"
                     :class="['p-2 rounded-lg transition-all duration-300 hover:scale-110', socialIcons[social.platform]?.bgColor]"

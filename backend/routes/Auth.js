@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 import { body, validationResult } from 'express-validator';
-import { loginLimiter } from '../middleware/rateLimiter.js';
+import { loginLimiter, refreshLimiter, logoutLimiter } from '../middleware/rateLimiter.js';
 
 const router = Router();
 
@@ -72,7 +72,7 @@ router.post('/login',
     }
 );
 
-router.post('/refresh', (req, res) => {
+router.post('/refresh', refreshLimiter, (req, res) => {
     const token = req.cookies?.refreshToken;
     if (!token) {
         return res.status(401).json({ Error: 'No refresh token' });
@@ -98,7 +98,7 @@ router.post('/refresh', (req, res) => {
     res.json({ accessToken });
 });
 
-router.post('/logout', (req, res) => {
+router.post('/logout', logoutLimiter, (req, res) => {
     validRefreshTokenHash = null;
     res.clearCookie('refreshToken', { path: '/api/auth/refresh' });
     res.json({ success: true });
