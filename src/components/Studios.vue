@@ -52,16 +52,37 @@ const setActiveCarouselImage = (studioId: string, index: number) => {
 
 const nextCarouselImage = (studioId: string) => {
   const studio = studios.value.find(s => s.id === studioId)
-  if (!studio?.images) return
+  if (!studio) return
+  const images = getCarouselImages(studio)
+  if (!images.length) return
   const current = activeCarouselIndex.value[studioId] || 0
-  activeCarouselIndex.value[studioId] = (current + 1) % studio.images.length
+  activeCarouselIndex.value[studioId] = (current + 1) % images.length
 }
 
 const prevCarouselImage = (studioId: string) => {
   const studio = studios.value.find(s => s.id === studioId)
-  if (!studio?.images) return
+  if (!studio) return
+  const images = getCarouselImages(studio)
+  if (!images.length) return
   const current = activeCarouselIndex.value[studioId] || 0
-  activeCarouselIndex.value[studioId] = current === 0 ? studio.images.length - 1 : current - 1
+  activeCarouselIndex.value[studioId] = current === 0 ? images.length - 1 : current - 1
+}
+
+// Touch swipe support for mobile carousel
+let carouselTouchStartX = 0
+let carouselTouchStartY = 0
+
+const onCarouselTouchStart = (e: TouchEvent) => {
+  carouselTouchStartX = e.touches[0].clientX
+  carouselTouchStartY = e.touches[0].clientY
+}
+
+const onCarouselTouchEnd = (studioId: string, e: TouchEvent) => {
+  const dx = e.changedTouches[0].clientX - carouselTouchStartX
+  const dy = e.changedTouches[0].clientY - carouselTouchStartY
+  // Only trigger horizontal swipe when it clearly dominates vertical scroll
+  if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return
+  dx < 0 ? nextCarouselImage(studioId) : prevCarouselImage(studioId)
 }
 
 const getCarouselImages = (studio: Studio): string[] => {
@@ -79,17 +100,17 @@ onMounted(() => { fetchStudios() })
   <div class="select-none text-white overflow-hidden">
 
     <!-- Loading State -->
-    <div v-if="isLoading" class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-950 flex items-center justify-center">
+    <div v-if="isLoading" class="min-h-screen bg-gray-900 flex items-center justify-center">
       <p class="text-gray-400 text-xl">{{ t.loading }}</p>
     </div>
 
     <!-- Empty State -->
-    <div v-else-if="studios.length === 0" class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-950 flex items-center justify-center">
+    <div v-else-if="studios.length === 0" class="min-h-screen bg-gray-900 flex items-center justify-center">
       <p class="text-gray-400 text-xl">{{ t.studios.empty }}</p>
     </div>
 
     <!-- Studio Grid Section - Desktop only -->
-    <div v-else-if="studios.length > 0" id="studios-grid" class="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-gray-900 to-gray-950 relative hidden lg:block">
+    <div v-else-if="studios.length > 0" id="studios-grid" class="min-h-[calc(100vh-4rem)] bg-gray-900 relative hidden lg:block">
       <div class="absolute inset-0 overflow-hidden">
         <div class="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/5 rounded-full mix-blend-multiply filter blur-3xl"></div>
         <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-amber-500/5 rounded-full mix-blend-multiply filter blur-3xl"></div>
@@ -133,10 +154,8 @@ onMounted(() => { fetchStudios() })
       </div>
 
       <!-- Mobile section title -->
-      <div class="lg:hidden px-6 pt-16 pb-6 bg-gray-900">
-        <h1 v-reveal class="font-bold text-5xl text-white">
-          <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200">{{ t.studios.header }}</span>
-        </h1>
+      <div class="lg:hidden px-6 pt-16 pb-6 bg-gray-900 text-center">
+        <h1 v-reveal class="font-bold text-5xl md:text-6xl text-white">{{ t.studios.header }}</h1>
       </div>
 
       <div
@@ -147,8 +166,13 @@ onMounted(() => { fetchStudios() })
         :class="index % 2 === 1 ? 'bg-gray-800' : 'bg-gray-900'"
       >
         <!-- Image Carousel -->
-        <div class="lg:w-1/2 w-full h-[50vh] lg:h-full relative" :class="{ 'lg:order-2': index % 2 === 1 }">
-          <div class="absolute inset-0">
+        <div
+          class="lg:w-1/2 w-full h-[50vh] lg:h-full relative select-none"
+          :class="{ 'lg:order-2': index % 2 === 1 }"
+          @touchstart="onCarouselTouchStart"
+          @touchend="onCarouselTouchEnd(studio.id, $event)"
+        >
+          <div class="absolute inset-0 overflow-hidden">
             <img
               :src="getCarouselImages(studio)[activeCarouselIndex[studio.id] || 0]"
               :alt="lt(studio.title)"
@@ -156,8 +180,37 @@ onMounted(() => { fetchStudios() })
             />
             <div class="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent"></div>
 
-            <!-- Thumbnails -->
-            <div v-if="getCarouselImages(studio).length > 1" class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex space-x-3">
+            <!-- Mobile: prev/next arrows -->
+            <template v-if="getCarouselImages(studio).length > 1">
+              <button
+                @click="prevCarouselImage(studio.id)"
+                class="lg:hidden absolute left-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white transition-all duration-200 active:scale-90"
+              >
+                <i class="bi bi-chevron-left text-lg leading-none"></i>
+              </button>
+              <button
+                @click="nextCarouselImage(studio.id)"
+                class="lg:hidden absolute right-3 top-1/2 -translate-y-1/2 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-black/50 hover:bg-black/70 text-white transition-all duration-200 active:scale-90"
+              >
+                <i class="bi bi-chevron-right text-lg leading-none"></i>
+              </button>
+            </template>
+
+            <!-- Mobile: dot indicators -->
+            <div v-if="getCarouselImages(studio).length > 1" class="lg:hidden absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+              <button
+                v-for="(_, dotIdx) in getCarouselImages(studio)"
+                :key="dotIdx"
+                @click="setActiveCarouselImage(studio.id, dotIdx)"
+                class="rounded-full transition-all duration-300"
+                :class="(activeCarouselIndex[studio.id] || 0) === dotIdx
+                  ? 'w-5 h-2 bg-amber-400'
+                  : 'w-2 h-2 bg-white/50 hover:bg-white/80'"
+              />
+            </div>
+
+            <!-- Desktop: thumbnails -->
+            <div v-if="getCarouselImages(studio).length > 1" class="hidden lg:flex absolute bottom-8 left-1/2 transform -translate-x-1/2 space-x-3">
               <button
                 v-for="(image, imgIndex) in getCarouselImages(studio)"
                 :key="imgIndex"
@@ -167,7 +220,7 @@ onMounted(() => { fetchStudios() })
                 <img
                   :src="image"
                   :alt="`${lt(studio.title)} - Image ${imgIndex + 1}`"
-                  class="w-12 h-12 lg:w-16 lg:h-16 object-cover rounded-lg transition-all duration-300 hover:scale-110 border-2"
+                  class="w-16 h-16 object-cover rounded-lg transition-all duration-300 hover:scale-110 border-2"
                   :class="(activeCarouselIndex[studio.id] || 0) === imgIndex ? 'border-amber-400' : 'border-transparent opacity-70 hover:opacity-100'"
                 />
               </button>

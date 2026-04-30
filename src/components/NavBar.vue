@@ -35,36 +35,107 @@ const smoothScroll = (href: string, event: Event) => {
 </script>
 
 <template>
-  <div id="main-navbar" class="fixed top-0 left-0 w-full z-50 text-white bg-gray-900/95 backdrop-blur-md border-b border-gray-800/60 py-4 md:py-8 md:flex md:items-center justify-between px-10">
-    <div class="logo cursor-pointer">
-      <a href="#home" @click="smoothScroll('#home', $event)" class="block">
-        <img src="../assets/logos/ICON.png" alt="Studio Logo" class="block md:hidden w-12 h-auto select-none">
-        <img src="../assets/logos/BIG.png" alt="Studio Logo" class="hidden md:block w-60 h-auto select-none">
-      </a>
-    </div>
-    <span class="text-3xl absolute right-6 top-4 md:top-6 cursor-pointer md:hidden" @click="menuOpen">
-      <i :class="[open ? 'bi bi-x' : 'bi bi-list']"></i>
-    </span>
-    <ul class="md:flex gap-10 items-center absolute md:static bg-gray-900/75 md:bg-transparent backdrop-blur-md md:backdrop-blur-none w-full md:w-auto md:pb-0 px-10 md:px-15 top-16 md:top-20 duration-500" :class="[open ? 'left-0' : 'left-[-100%]']">
-      <li v-for="tag in tags" :key="tag.href" class="py-4 md:py-0">
-        <a :href="tag.href" @click="smoothScroll(tag.href, $event)" class="hover:text-amber-400 duration-300 text-xl font-bold">{{ tag.name }}</a>
-      </li>
+  <!-- ── Navbar bar ── -->
+  <div id="main-navbar" class="fixed top-0 left-0 w-full z-50 text-white bg-gray-900/95 backdrop-blur-md border-b border-gray-800/60">
 
-      <!-- Language Switcher -->
-      <li class="py-4 md:py-0 flex items-center gap-1 text-sm font-medium border-l border-gray-700 pl-8 ml-2 select-none">
+    <!-- Mobile bar -->
+    <div class="md:hidden flex items-center justify-between px-4 h-16 relative">
+      <!-- Left: Language switcher -->
+      <div class="flex items-center gap-1 text-sm font-semibold select-none z-10">
         <button
           @click="setLocale('de')"
           class="transition-colors duration-200"
-          :class="locale === 'de' ? 'text-amber-400' : 'text-gray-500 hover:text-gray-300'"
+          :class="locale === 'de' ? 'text-amber-400' : 'text-gray-400 hover:text-gray-200'"
         >DE</button>
-        <span class="text-gray-700">|</span>
+        <span class="text-gray-600">|</span>
         <button
           @click="setLocale('en')"
           class="transition-colors duration-200"
-          :class="locale === 'en' ? 'text-amber-400' : 'text-gray-500 hover:text-gray-300'"
+          :class="locale === 'en' ? 'text-amber-400' : 'text-gray-400 hover:text-gray-200'"
         >EN</button>
-      </li>
-    </ul>
+      </div>
+
+      <!-- Center: BIG logo -->
+      <a href="#home" @click="smoothScroll('#home', $event)" class="absolute left-1/2 -translate-x-1/2">
+        <img src="../assets/logos/BIG.png" alt="ShutterVerse" class="w-36 h-auto select-none">
+      </a>
+
+      <!-- Right: Burger -->
+      <span
+        class="text-3xl cursor-pointer z-10 transition-transform duration-300"
+        :class="open ? 'rotate-90' : ''"
+        @click="menuOpen"
+      >
+        <i :class="[open ? 'bi bi-x' : 'bi bi-list']"></i>
+      </span>
+    </div>
+
+    <!-- Desktop bar -->
+    <div class="hidden md:flex items-center justify-between px-10 py-8">
+      <a href="#home" @click="smoothScroll('#home', $event)" class="cursor-pointer">
+        <img src="../assets/logos/BIG.png" alt="ShutterVerse" class="w-60 h-auto select-none">
+      </a>
+
+      <ul class="flex gap-10 items-center">
+        <li v-for="tag in tags" :key="tag.href">
+          <a
+            :href="tag.href"
+            @click="smoothScroll(tag.href, $event)"
+            class="hover:text-amber-400 duration-300 text-xl font-bold"
+          >{{ tag.name }}</a>
+        </li>
+
+        <!-- Language Switcher -->
+        <li class="flex items-center gap-1 text-sm font-medium border-l border-gray-700 pl-8 ml-2 select-none">
+          <button
+            @click="setLocale('de')"
+            class="transition-colors duration-200"
+            :class="locale === 'de' ? 'text-amber-400' : 'text-gray-500 hover:text-gray-300'"
+          >DE</button>
+          <span class="text-gray-700">|</span>
+          <button
+            @click="setLocale('en')"
+            class="transition-colors duration-200"
+            :class="locale === 'en' ? 'text-amber-400' : 'text-gray-500 hover:text-gray-300'"
+          >EN</button>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ── Mobile burger menu — außerhalb der Navbar damit backdrop-blur den Seiteninhalt blurt ── -->
+  <div
+    class="fixed top-16 left-0 w-full z-40 md:hidden overflow-hidden transition-all duration-400 ease-in-out"
+    :style="open ? 'max-height: 500px; opacity: 1' : 'max-height: 0; opacity: 0'"
+  >
+    <div class="bg-gray-900/65 border-b border-amber-500/20 text-white">
+      <!-- Amber glow line -->
+      <div class="h-px bg-gradient-to-r from-transparent via-amber-500/50 to-transparent" />
+
+      <ul class="px-6 py-3 pb-6">
+        <li
+          v-for="(tag, i) in tags"
+          :key="tag.href"
+          class="border-b border-white/5 last:border-0 transition-all duration-300"
+          :style="{
+            transitionDelay: open ? `${i * 55}ms` : '0ms',
+            opacity: open ? 1 : 0,
+            transform: open ? 'translateX(0)' : 'translateX(20px)'
+          }"
+        >
+          <a
+            :href="tag.href"
+            @click="smoothScroll(tag.href, $event)"
+            class="flex items-center justify-end gap-3 py-4 group"
+          >
+            <span class="group-hover:text-amber-400 duration-300 text-xl font-bold tracking-wide">{{ tag.name }}</span>
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-all duration-200 group-hover:scale-125" />
+          </a>
+        </li>
+      </ul>
+
+      <div class="h-4 bg-gradient-to-b from-transparent to-black/20" />
+    </div>
   </div>
 </template>
 

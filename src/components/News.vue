@@ -69,7 +69,8 @@ onMounted(() => { fetchNews() })
 </script>
 
 <template>
-  <div class="min-h-screen select-none relative overflow-hidden bg-gradient-to-br from-gray-900 to-gray-800 text-white">
+  <div class="min-h-screen select-none relative overflow-hidden bg-gray-900 text-white">
+
     <div class="relative z-10 container mx-auto px-4 pt-8 pb-16 md:pt-10 md:pb-24">
       <h1 v-reveal class="font-bold text-5xl md:text-6xl text-white mb-6 md:mb-12 text-center">
         NEWS

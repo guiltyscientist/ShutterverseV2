@@ -25,7 +25,7 @@ const locations = computed(() => [
 </script>
 
 <template>
-  <div class="min-h-screen relative select-none bg-gradient-to-br from-gray-900 to-gray-950 text-white overflow-hidden flex flex-col">
+  <div class="min-h-screen relative select-none bg-gray-900 text-white overflow-hidden flex flex-col">
     <!-- Background decorative elements -->
     <div class="absolute inset-0 overflow-hidden">
       <div class="absolute -top-40 -right-40 w-80 h-80 bg-amber-500/5 rounded-full mix-blend-multiply filter blur-3xl"></div>
