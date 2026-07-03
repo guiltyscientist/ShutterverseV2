@@ -12,14 +12,16 @@
     tag?: string; titleImg?: { url: string | null }
   }
 
-  const PAGE_SIZE = 4
+  const DESKTOP_PAGE_SIZE = 4
+  const MOBILE_PAGE_SIZE = 3
 
   let newsData = $state<NewsItem[]>([])
   let expandedId = $state<string | null>(null)
   let page = $state(0)
+  let pageSize = $state(DESKTOP_PAGE_SIZE)
 
-  const pageCount = $derived(Math.ceil(newsData.length / PAGE_SIZE))
-  const visibleNews = $derived(newsData.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE))
+  const pageCount = $derived(Math.ceil(newsData.length / pageSize))
+  const visibleNews = $derived(newsData.slice(page * pageSize, (page + 1) * pageSize))
 
   function formatDate(d: string) {
     return new Date(d).toLocaleDateString(loc.locale === 'de' ? 'de-DE' : 'en-US', {
@@ -36,14 +38,26 @@
     expandedId = null
   }
 
-  onMount(async () => {
-    try {
-      const { data } = await axios.get('/api/news')
-      // Newest first — older entries land on the following carousel pages
-      newsData = [...data].sort(
-        (a: NewsItem, b: NewsItem) => new Date(b.created).getTime() - new Date(a.created).getTime()
-      )
-    } catch { newsData = [] }
+  onMount(() => {
+    // 3 cards per page on mobile (stacked), 4 on desktop (row)
+    const mq = window.matchMedia('(max-width: 1080px)')
+    const applyPageSize = () => {
+      pageSize = mq.matches ? MOBILE_PAGE_SIZE : DESKTOP_PAGE_SIZE
+      page = Math.min(page, Math.max(0, Math.ceil(newsData.length / pageSize) - 1))
+    }
+    applyPageSize()
+    mq.addEventListener('change', applyPageSize)
+
+    axios.get('/api/news')
+      .then(({ data }) => {
+        // Newest first — older entries land on the following carousel pages
+        newsData = [...data].sort(
+          (a: NewsItem, b: NewsItem) => new Date(b.created).getTime() - new Date(a.created).getTime()
+        )
+      })
+      .catch(() => { newsData = [] })
+
+    return () => mq.removeEventListener('change', applyPageSize)
   })
 </script>
 

@@ -100,6 +100,11 @@
         {item.label}
       </a>
     {/each}
+    <!-- Language switch inside the mobile menu (hidden on desktop) -->
+    <div class="lang-toggle menu-lang" role="group" aria-label="Language">
+      <button class:active={loc.locale === 'de'} onclick={() => setLocale('de')}>DE</button>
+      <button class:active={loc.locale === 'en'} onclick={() => setLocale('en')}>EN</button>
+    </div>
   </nav>
 
   <button class="sv-burger" aria-label="Menu" onclick={toggleMenu}>
