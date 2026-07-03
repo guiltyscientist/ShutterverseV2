@@ -1,14 +1,18 @@
 import { Router } from 'express';
+import crypto from 'crypto';
 import uploadTo, { cloudinary } from '../config/Cloudinary.js'
 import News from '../models/NewsModel.js'
 import authenticate from '../middleware/authenticate.js';
 
 const router = Router();
 
+const NEWS_TAGS = ['news', 'event', 'set', 'workshop'];
+
 function parseNewsFields(body) {
     return {
         title: { de: body.title_de, en: body.title_en || null },
         description: { de: body.description_de, en: body.description_en || null },
+        tag: NEWS_TAGS.includes(body.tag) ? body.tag : 'news',
     };
 }
 
@@ -21,7 +25,7 @@ router.post('/', authenticate, uploadTo('SHUTTERVERSE/NEWS').single('titleImg'),
 
     try {
         const news = new News({
-            id: req.body.id,
+            id: crypto.randomUUID(),
             titleImg: req.file ? {
                 url: req.file.path,
                 publicId: req.file.filename
@@ -32,11 +36,6 @@ router.post('/', authenticate, uploadTo('SHUTTERVERSE/NEWS').single('titleImg'),
         res.json(news);
     } catch (error) {
         await rollback()
-
-        if (error.code === 11000) {
-            return res.status(409).json({ Error: `ID '${req.body.id}' is already taken` });
-        }
-
         res.status(500).json({ Error: 'Internal server error' });
     }
 });

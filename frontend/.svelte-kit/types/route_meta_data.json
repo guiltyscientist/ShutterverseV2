@@ -1,0 +1,28 @@
+{
+	"/": [
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/admin": [
+		"src/routes/+layout.ts",
+		"src/routes/+layout.ts"
+	],
+	"/admin/hero": [
+		"src/routes/+layout.ts"
+	],
+	"/admin/login": [
+		"src/routes/+layout.ts"
+	],
+	"/admin/news": [
+		"src/routes/+layout.ts"
+	],
+	"/admin/studios": [
+		"src/routes/+layout.ts"
+	],
+	"/admin/team": [
+		"src/routes/+layout.ts"
+	],
+	"/admin/users": [
+		"src/routes/+layout.ts"
+	]
+}

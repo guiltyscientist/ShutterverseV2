@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import crypto from 'crypto';
 import uploadTo, { cloudinary } from '../config/Cloudinary.js';
 import Member from '../models/MemberModel.js'
 import authenticate from '../middleware/authenticate.js';
@@ -51,7 +52,7 @@ router.post('/', authenticate, uploadTo('SHUTTERVERSE/MEMBER').single('profilImg
 
     try {
         const member = new Member({
-            id: req.body.id,
+            id: crypto.randomUUID(),
             profilImg: req.file ? {
                 url: req.file.path,
                 publicId: req.file.filename
@@ -62,11 +63,6 @@ router.post('/', authenticate, uploadTo('SHUTTERVERSE/MEMBER').single('profilImg
         res.json(member);
     } catch (error) {
         await rollback()
-
-        if (error.code === 11000) {
-            return res.status(409).json({ Error: `ID '${req.body.id}' is already taken` });
-        }
-
         res.status(500).json({ Error: 'Internal server error' });
     }
 });

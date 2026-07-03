@@ -8,6 +8,7 @@ const NewsSchema = new Schema({
     },
     title: { de: { type: String, required: true }, en: { type: String, default: null } },
     description: { de: { type: String, required: true }, en: { type: String, default: null } },
+    tag: { type: String, enum: ['news', 'event', 'set', 'workshop'], default: 'news' },
     created: { type: Date, default: Date.now }
 }, { versionKey: false });
 

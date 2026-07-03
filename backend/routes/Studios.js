@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import crypto from 'crypto';
 import uploadTo, { cloudinary } from '../config/Cloudinary.js';
 import Studio from '../models/StudioModel.js';
 import authenticate from '../middleware/authenticate.js';
@@ -29,7 +30,7 @@ router.post('/', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
 
     try {
         const studio = new Studio({
-            id: req.body.id,
+            id: crypto.randomUUID(),
             ...parseStudioFields(req.body),
             titleImg: req.files['titleImg'] ? {
                 url: req.files['titleImg'][0].path,
@@ -44,11 +45,6 @@ router.post('/', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
         res.json(studio);
     } catch (error) {
         await rollback();
-
-        if (error.code === 11000) {
-            return res.status(409).json({ Error: `ID '${req.body.id}' is already taken` });
-        }
-
         res.status(500).json({ Error: 'Internal server error' });
     }
 });

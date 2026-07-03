@@ -8,6 +8,8 @@ import studioRoutes from './routes/Studios.js'
 import newsRoutes from './routes/News.js'
 import teamRoutes from './routes/Team.js'
 import authRoutes from './routes/Auth.js'
+import userRoutes from './routes/Users.js'
+import heroRoutes from './routes/Hero.js'
 
 const app = express();
 
@@ -26,13 +28,15 @@ mongoose.connect(process.env.DB_URI)
     .catch(error => console.error(error));
 
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/studios', studioRoutes);
 app.use('/api/news', newsRoutes);
 app.use('/api/team', teamRoutes);
+app.use('/api/hero', heroRoutes);
 
 app.use((err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(413).json({ Error: 'Datei zu groß. Maximale Dateigröße: 10 MB.' });
+        return res.status(413).json({ Error: 'Datei zu groß. Maximum: 10 MB für Bilder, 50 MB für Hero-Medien.' });
     }
     // Cloudinary rejects files larger than the plan limit after upload starts
     if (err?.http_code === 400 && err?.message?.includes('File size too large')) {
