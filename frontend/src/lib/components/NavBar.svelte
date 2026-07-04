@@ -32,52 +32,6 @@
   onMount(() => {
     window.addEventListener('scroll', onScroll, { passive: true })
     onScroll()
-
-    if (!window.matchMedia('(hover: none)').matches) {
-      const dot = document.createElement('div')
-      dot.className = 'cursor-dot'
-      const ring = document.createElement('div')
-      ring.className = 'cursor-ring'
-      document.body.append(dot, ring)
-
-      let mx = window.innerWidth / 2, my = window.innerHeight / 2
-      let rx = mx, ry = my
-      let animId: number
-
-      const onMove = (e: MouseEvent) => { mx = e.clientX; my = e.clientY }
-      window.addEventListener('mousemove', onMove)
-
-      const loop = () => {
-        rx += (mx - rx) * 0.18
-        ry += (my - ry) * 0.18
-        dot.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`
-        ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`
-        animId = requestAnimationFrame(loop)
-      }
-      loop()
-
-      const addHover = (e: Event) => {
-        if ((e.target as Element).closest('a,button,.set-card,.news-card,.lang-toggle button'))
-          ring.classList.add('hover')
-      }
-      const removeHover = (e: Event) => {
-        if ((e.target as Element).closest('a,button,.set-card,.news-card,.lang-toggle button'))
-          ring.classList.remove('hover')
-      }
-      document.addEventListener('mouseover', addHover)
-      document.addEventListener('mouseout', removeHover)
-
-      return () => {
-        window.removeEventListener('scroll', onScroll)
-        window.removeEventListener('mousemove', onMove)
-        document.removeEventListener('mouseover', addHover)
-        document.removeEventListener('mouseout', removeHover)
-        cancelAnimationFrame(animId)
-        dot.remove()
-        ring.remove()
-      }
-    }
-
     return () => window.removeEventListener('scroll', onScroll)
   })
 </script>
