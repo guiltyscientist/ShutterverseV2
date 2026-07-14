@@ -731,12 +731,13 @@ function _page($$renderer, $$props) {
     const { t, lt } = useLocale();
     const BOOKING_URL = "https://booking.shutterverse.at";
     let teaserSets = [];
+    let positioning = false;
     head("1uha8ag", $$renderer2, ($$renderer3) => {
       $$renderer3.title(($$renderer4) => {
         $$renderer4.push(`<title>ShutterVerse Studio</title>`);
       });
     });
-    $$renderer2.push(`<div id="app">`);
+    $$renderer2.push(`<div id="app"${attr_class("", void 0, { "positioning": positioning })}>`);
     NavBar($$renderer2);
     $$renderer2.push(`<!----> `);
     Home($$renderer2);

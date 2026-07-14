@@ -17,15 +17,46 @@
     if (nav) document.documentElement.style.setProperty('--nav-h', `${nav.offsetHeight}px`)
   }
 
+  // Bei den position:sticky-Karten liefert offsetTop die GEKLEBTE Position statt
+  // der Fluss-Position — der Scroll-Spy würde dadurch den falschen Punkt markieren.
+  // Deshalb einmal sauber messen (Sticky kurz aussetzen) und cachen, statt bei
+  // jedem Scroll-Event einen Reflow zu erzwingen.
+  let sectionTops: Record<string, number> = {}
+
+  function measureSections() {
+    const tops: Record<string, number> = {}
+    for (const id of sectionIds) {
+      const el = document.getElementById(id)
+      if (!el) continue
+      const prev = el.style.position
+      el.style.position = 'static'
+      tops[id] = el.offsetTop
+      el.style.position = prev
+    }
+    sectionTops = tops
+  }
+
   function onScroll() {
     scrolled = window.scrollY > 40
     const y = window.scrollY + window.innerHeight * 0.3
     let activeId = sectionIds[0]
-    sectionIds.forEach(id => {
-      const el = document.getElementById(id)
-      if (el && el.offsetTop <= y) activeId = id
-    })
-    activeHref = '#' + activeId
+    for (const id of sectionIds) {
+      const top = sectionTops[id]
+      if (top !== undefined && top <= y) activeId = id
+    }
+
+    const href = '#' + activeId
+    if (href === activeHref) return
+    activeHref = href
+
+    // URL an die aktuelle Sektion anpassen, damit ein Reload oder ein geteilter
+    // Link wieder dort landet statt oben. replaceState: erzeugt keine History-
+    // Einträge (sonst wäre der Zurück-Button unbrauchbar) und löst keinen Sprung
+    // aus. Am Hero bleibt die URL sauber ohne Hash.
+    const url = activeId === 'top'
+      ? location.pathname + location.search
+      : href
+    history.replaceState(history.state, '', url)
   }
 
   function closeMenu() {
@@ -37,18 +68,29 @@
   }
 
   onMount(() => {
+    const onResize = () => { syncNavHeight(); measureSections(); onScroll() }
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', syncNavHeight)
-    onScroll()
+    window.addEventListener('resize', onResize)
+
     // Nach dem Umschalten auf den gescrollten (kleineren) Zustand neu messen
-    const ro = new ResizeObserver(syncNavHeight)
+    const navRo = new ResizeObserver(syncNavHeight)
     const nav = document.querySelector('.sv-nav')
-    if (nav) ro.observe(nav)
+    if (nav) navRo.observe(nav)
+
+    // Studios/News laden asynchron nach — die Sektionspositionen verschieben sich
+    // dadurch. Bei Höhenänderung der Seite neu vermessen.
+    const bodyRo = new ResizeObserver(() => { measureSections(); onScroll() })
+    bodyRo.observe(document.body)
+
     syncNavHeight()
+    measureSections()
+    onScroll()
+
     return () => {
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', syncNavHeight)
-      ro.disconnect()
+      window.removeEventListener('resize', onResize)
+      navRo.disconnect()
+      bodyRo.disconnect()
     }
   })
 </script>

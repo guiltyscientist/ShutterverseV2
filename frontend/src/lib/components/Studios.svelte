@@ -4,6 +4,7 @@
   import { useLocale } from '$lib/i18n/index.svelte'
   import { reveal } from '$lib/actions/reveal'
   import { nearViewport } from '$lib/actions/nearViewport'
+  import { swipe } from '$lib/actions/swipe'
   import { cldUrl, CLD } from '$lib/utils/cloudinary'
 
   const { t, lt } = useLocale()
@@ -65,6 +66,11 @@
   function prefetchMain(url: string) {
     const full = cldUrl(url, CLD.main)
     if (full) preload(full)
+  }
+
+  function showImage(studioId: string, url: string) {
+    activeImg[studioId] = url
+    prefetchMain(url)
   }
 
   function getEquipmentItems(studio: Studio): string[] {
@@ -135,7 +141,13 @@
       <article class="set-detail {isReverse ? 'reverse' : ''}" use:reveal use:nearViewport={() => { shown[`det-${studio.id}`] = true; prefetchGallery(studio) }}>
         <!-- Media -->
         <div class="sdm-wrap">
-          <div class="sdm {theme(i)}">
+          <div
+            class="sdm {theme(i)}"
+            use:swipe={{
+              onNext: () => { if (idx < gallery.length - 1) showImage(studio.id, gallery[idx + 1]!) },
+              onPrev: () => { if (idx > 0) showImage(studio.id, gallery[idx - 1]!) },
+            }}
+          >
             <div class="sdm-img" style={img ? `background-image: url(${img})` : ''}></div>
             <div class="annot annot-tl">{a.tl}</div>
             <div class="annot annot-tr"><span class="dot-mag"></span> REC · 24P</div>

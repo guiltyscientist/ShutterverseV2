@@ -204,6 +204,20 @@ html, body { background: var(--bg-0); }
   45%  { transform: translate3d(3%, -3%, 0) scale(1.18); opacity: 1; }
   100% { transform: translate3d(8%, 1%, 0) scale(1.02);  opacity: 0.7; }
 }
+/* Beim Reload mit #hash: unsichtbar, bis die Seite an der richtigen Position
+   steht. Verhindert den sichtbaren Sprung. Der Hintergrund bleibt sichtbar,
+   es wird also nicht weiß/leer geblitzt. */
+#app.positioning { visibility: hidden; }
+
+/* Ankersprünge von Browser UND SvelteKit (beide nutzen scrollIntoView) würden
+   die Sektion sonst unter der fixen Navbar parken. scroll-margin-top teilt ihnen
+   die Navbar-Höhe mit, damit sie von sich aus richtig landen — sonst korrigiert
+   unser JS hinterher und genau das erzeugt den sichtbaren Sprung. */
+.sv-hero, .sv-news, .sv-location, .sv-about, .sv-booking {
+  scroll-margin-top: var(--nav-h);
+}
+/* Stapel-Karten docken bei top: 0 an und haben die Navbar schon als padding drin */
+.stack-zone .vh { scroll-margin-top: 0; }
 #app a { color: inherit; text-decoration: none; }
 #app img { display: block; max-width: 100%; }
 #app ::selection { background: var(--neon-cyan); color: var(--bg-0); }
@@ -866,6 +880,12 @@ html, body { background: var(--bg-0); }
   position: relative; overflow: hidden; flex: 1;
   background: var(--bg-2); border: 1px solid rgba(255,255,255,0.06);
   align-self: stretch; min-height: 0; max-height: 100%;
+  /* Wischen durch die Galerie: pan-y überlässt dem Browser nur das vertikale
+     Scrollen — horizontale Gesten bekommt unser JS und kann die Zurück/Vor-
+     Navigation per preventDefault() abfangen. Ohne das wäre der Event nicht
+     abbrechbar. pinch-zoom bleibt erlaubt. */
+  touch-action: pan-y pinch-zoom;
+  overscroll-behavior-x: contain;
 }
 /* Galerie-Navigation über dem Hauptbild */
 .sdm-nav {
@@ -1172,7 +1192,6 @@ html, body { background: var(--bg-0); }
   position: relative; overflow: hidden;
   /* Titel startet oben wie bei den .vh-Sektionen (24px), unten großzügiger Abschluss */
   padding: 24px 0 clamp(80px, 10vh, 130px);
-  border-top: 1px solid rgba(255,255,255,0.05);
 }
 .booking-inner {
   display: flex; flex-direction: column; align-items: center;
