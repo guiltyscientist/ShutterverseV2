@@ -12,7 +12,7 @@
     tag?: string; titleImg?: { url: string | null }
   }
 
-  const DESKTOP_PAGE_SIZE = 4
+  const DESKTOP_PAGE_SIZE = 3
   const MOBILE_PAGE_SIZE = 3
 
   let newsData = $state<NewsItem[]>([])
@@ -36,10 +36,19 @@
   function goToPage(p: number) {
     page = Math.max(0, Math.min(p, pageCount - 1))
     expandedId = null
+
+    // Mobil ist die Sektion höher als der Viewport und der Pager sitzt unten:
+    // Nach dem Blättern stünde man weiterhin unten, während die neuen Karten
+    // oben beginnen. Deshalb zurück an den Anfang der Sektion springen.
+    if (!window.matchMedia('(max-width: 1080px)').matches) return
+    const el = document.getElementById('news')
+    if (!el) return
+    const nav = document.querySelector('.sv-nav') as HTMLElement | null
+    const top = el.getBoundingClientRect().top + window.scrollY - (nav?.offsetHeight ?? 0)
+    window.scrollTo({ top, behavior: 'smooth' })
   }
 
   onMount(() => {
-    // 3 cards per page on mobile (stacked), 4 on desktop (row)
     const mq = window.matchMedia('(max-width: 1080px)')
     const applyPageSize = () => {
       pageSize = mq.matches ? MOBILE_PAGE_SIZE : DESKTOP_PAGE_SIZE
@@ -88,6 +97,12 @@
               <p>{lt(item.description)}</p>
             </div>
           </article>
+        {/each}
+        <!-- Unsichtbare Platzhalter: halten die Kartenbreite konstant, auch wenn
+             weniger als eine volle Seite da ist (sonst zöge sich eine einzelne
+             News über die ganze Reihe). Mobil ausgeblendet. -->
+        {#each Array(Math.max(0, pageSize - visibleNews.length)) as _}
+          <div class="news-filler" aria-hidden="true"></div>
         {/each}
       </div>
 

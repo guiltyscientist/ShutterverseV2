@@ -148,7 +148,7 @@
     "src": "src/routes/+layout.svelte",
     "isEntry": true,
     "css": [
-      "_app/immutable/assets/_layout.DM9g74_t.css"
+      "_app/immutable/assets/_layout.DKD9Plnc.css"
     ],
     "assets": [
       "_app/immutable/assets/bootstrap-icons.mSm7cUeB.woff2",

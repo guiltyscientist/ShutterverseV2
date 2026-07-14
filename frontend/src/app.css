@@ -590,6 +590,14 @@ html, body { background: var(--bg-0); }
 }
 .news-row.has-expanded .news-card { flex-grow: 0.55; }
 .news-row .news-card.expanded { flex-grow: 2.8; }
+/* Platzhalter für nicht belegte Kartenplätze — nimmt denselben Flex-Raum ein wie
+   eine Karte, ist aber unsichtbar. So bleibt die Breite einer einzelnen News
+   identisch zu der bei drei News. */
+.news-filler {
+  flex: 1 1 0; min-width: 0;
+  transition: flex-grow .55s cubic-bezier(.16,1,.3,1);
+}
+.news-row.has-expanded .news-filler { flex-grow: 0.55; }
 .news-card:hover { border-color: rgba(255,255,255,0.14); background: var(--bg-2); }
 .news-card.expanded { border-color: rgba(0,240,255,0.45); }
 .news-toggle {
@@ -1331,6 +1339,8 @@ html, body { background: var(--bg-0); }
   .news-row { flex-direction: column; gap: 10px; }
   .news-card, .news-row.has-expanded .news-card { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; }
   .news-row .news-card.expanded { flex-grow: 1; }
+  /* Gestapelt gibt es keine Kartenplätze zu füllen */
+  .news-filler { display: none; }
   /* Cards with images stack taller than the viewport — let the section grow */
   .sv-news.vh { height: auto; min-height: 100svh; }
   .news-row { flex: 0 1 auto; max-height: none; }

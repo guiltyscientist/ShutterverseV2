@@ -454,7 +454,7 @@ function News($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     const loc = useLocale();
     const { t, lt } = loc;
-    const DESKTOP_PAGE_SIZE = 4;
+    const DESKTOP_PAGE_SIZE = 3;
     let newsData = [];
     let expandedId = null;
     let page = 0;
@@ -481,13 +481,19 @@ function News($$renderer, $$props) {
         }
         $$renderer2.push(`<!--]--> <button class="news-toggle"${attr("aria-expanded", expandedId === item.id)}><span${attr_class(`news-tag ${stringify(tag)}`)}>${escape_html(tag || "News")}</span> <span class="news-date">${escape_html(formatDate(item.created))}</span> <h3>${escape_html(lt(item.title))}</h3> <span class="news-preview">${escape_html(lt(item.description))}</span> <span class="news-plus" aria-hidden="true"></span></button> <div class="news-body"><p>${escape_html(lt(item.description))}</p></div></article>`);
       }
+      $$renderer2.push(`<!--]--> <!--[-->`);
+      const each_array_1 = ensure_array_like(Array(Math.max(0, pageSize - visibleNews().length)));
+      for (let $$index_1 = 0, $$length = each_array_1.length; $$index_1 < $$length; $$index_1++) {
+        each_array_1[$$index_1];
+        $$renderer2.push(`<div class="news-filler" aria-hidden="true"></div>`);
+      }
       $$renderer2.push(`<!--]--></div> `);
       if (pageCount() > 1) {
         $$renderer2.push("<!--[0-->");
         $$renderer2.push(`<div class="news-pager"><button class="news-pager-arrow"${attr("disabled", page === 0, true)} aria-label="Neuere News"><span class="pager-arrow left" aria-hidden="true"></span></button> <div class="news-pager-dots"><!--[-->`);
-        const each_array_1 = ensure_array_like(Array(pageCount()));
-        for (let p = 0, $$length = each_array_1.length; p < $$length; p++) {
-          each_array_1[p];
+        const each_array_2 = ensure_array_like(Array(pageCount()));
+        for (let p = 0, $$length = each_array_2.length; p < $$length; p++) {
+          each_array_2[p];
           $$renderer2.push(`<button${attr_class("news-pager-dot", void 0, { "active": p === page })}${attr("aria-label", `Seite ${p + 1}`)}></button>`);
         }
         $$renderer2.push(`<!--]--></div> <span class="news-pager-count">${escape_html(String(page + 1).padStart(2, "0"))} / ${escape_html(String(pageCount()).padStart(2, "0"))}</span> <button class="news-pager-arrow"${attr("disabled", page === pageCount() - 1, true)} aria-label="Ältere News"><span class="pager-arrow right" aria-hidden="true"></span></button></div>`);
