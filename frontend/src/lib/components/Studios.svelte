@@ -22,14 +22,7 @@
 
   const THEMES = ['theme-cyberpunk', 'theme-japanese', 'theme-hospital'] as const
 
-  const ANNOTATIONS = [
-    { tl: 'ISO 800 · 24mm · f/1.8', br: '1/60s · WB 3200K' },
-    { tl: 'ISO 200 · 50mm · f/2.0', br: '1/125s · WB 5600K' },
-    { tl: 'ISO 1600 · 35mm · f/1.4', br: '1/40s · WB 4200K' },
-  ]
-
   function theme(i: number) { return THEMES[i % THEMES.length] }
-  function annot(i: number) { return ANNOTATIONS[i % ANNOTATIONS.length] }
   function padNum(n: number) { return n < 10 ? `0${n}` : `${n}` }
 
   function getImg(studio: Studio): string | null {
@@ -131,7 +124,6 @@
   {@const rawImg = activeImg[studio.id] ?? getImg(studio)}
   {@const idx = Math.max(0, gallery.indexOf(rawImg))}
   {@const img = shown[`det-${studio.id}`] && rawImg ? cldUrl(rawImg, CLD.main) : null}
-  {@const a = annot(i)}
   {@const equipment = getEquipmentItems(studio)}
   {@const isReverse = i % 2 === 1}
   {@const isNew = !!studio.showNewBadge}
@@ -149,10 +141,6 @@
             }}
           >
             <div class="sdm-img" style={img ? `background-image: url(${img})` : ''}></div>
-            <div class="annot annot-tl">{a.tl}</div>
-            <div class="annot annot-tr"><span class="dot-mag"></span> REC · 24P</div>
-            <div class="annot annot-bl">// SET {padNum(i + 1)} · {lt(studio.title).toUpperCase()}</div>
-            <div class="annot annot-br">⟶ {a.br}</div>
             <div class="annot-corner tl"></div>
             <div class="annot-corner tr"></div>
             <div class="annot-corner bl"></div>

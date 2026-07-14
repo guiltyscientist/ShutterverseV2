@@ -509,16 +509,8 @@ function Studios($$renderer, $$props) {
     let activeImg = {};
     let shown = {};
     const THEMES = ["theme-cyberpunk", "theme-japanese", "theme-hospital"];
-    const ANNOTATIONS = [
-      { tl: "ISO 800 · 24mm · f/1.8", br: "1/60s · WB 3200K" },
-      { tl: "ISO 200 · 50mm · f/2.0", br: "1/125s · WB 5600K" },
-      { tl: "ISO 1600 · 35mm · f/1.4", br: "1/40s · WB 4200K" }
-    ];
     function theme(i) {
       return THEMES[i % THEMES.length];
-    }
-    function annot(i) {
-      return ANNOTATIONS[i % ANNOTATIONS.length];
     }
     function padNum(n) {
       return n < 10 ? `0${n}` : `${n}`;
@@ -555,11 +547,10 @@ function Studios($$renderer, $$props) {
         const rawImg = activeImg[studio.id] ?? getImg(studio);
         const idx = Math.max(0, gallery.indexOf(rawImg));
         const img = shown[`det-${studio.id}`] && rawImg ? cldUrl(rawImg, CLD.main) : null;
-        const a = annot(i);
         const equipment = getEquipmentItems(studio);
         const isReverse = i % 2 === 1;
         const isNew = !!studio.showNewBadge;
-        $$renderer2.push(`<section class="sv-set-detail vh"${attr("id", `set-${stringify(studio.id)}`)}><div class="vh-inner"><article${attr_class(`set-detail ${isReverse ? "reverse" : ""}`)}><div class="sdm-wrap"><div${attr_class(`sdm ${stringify(theme(i))}`)}><div class="sdm-img"${attr_style(img ? `background-image: url(${img})` : "")}></div> <div class="annot annot-tl">${escape_html(a.tl)}</div> <div class="annot annot-tr"><span class="dot-mag"></span> REC · 24P</div> <div class="annot annot-bl">// SET ${escape_html(padNum(i + 1))} · ${escape_html(lt(studio.title).toUpperCase())}</div> <div class="annot annot-br">⟶ ${escape_html(a.br)}</div> <div class="annot-corner tl"></div> <div class="annot-corner tr"></div> <div class="annot-corner bl"></div> <div class="annot-corner br"></div> `);
+        $$renderer2.push(`<section class="sv-set-detail vh"${attr("id", `set-${stringify(studio.id)}`)}><div class="vh-inner"><article${attr_class(`set-detail ${isReverse ? "reverse" : ""}`)}><div class="sdm-wrap"><div${attr_class(`sdm ${stringify(theme(i))}`)}><div class="sdm-img"${attr_style(img ? `background-image: url(${img})` : "")}></div> <div class="annot-corner tl"></div> <div class="annot-corner tr"></div> <div class="annot-corner bl"></div> <div class="annot-corner br"></div> `);
         if (isNew) {
           $$renderer2.push("<!--[0-->");
           $$renderer2.push(`<span class="badge-new">NEW</span>`);

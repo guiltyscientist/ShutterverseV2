@@ -168,7 +168,14 @@
     const el = document.getElementById(id)
     if (!el) return
     e.preventDefault()
-    window.scrollTo({ top: scrollTargetFor(el, navHeight()), behavior: 'smooth' })
+    // Auf Mobile ohne weiches Scrollen: Der Weg führt durch den Sticky-Kartenstapel,
+    // und beim Durchrasen blitzen die dazwischenliegenden Karten kurz auf — das
+    // sieht aus wie ein Renderfehler. Ein direkter Sprung ist dort sauberer.
+    const smooth = !window.matchMedia('(max-width: 1080px)').matches
+    window.scrollTo({
+      top: scrollTargetFor(el, navHeight()),
+      behavior: smooth ? 'smooth' : 'auto',
+    })
   }
 </script>
 
