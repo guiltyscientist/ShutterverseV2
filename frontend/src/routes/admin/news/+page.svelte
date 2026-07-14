@@ -23,7 +23,7 @@
     { value: 'workshop', label: 'Workshop' },
   ]
 
-  const emptyForm = () => ({ title: { de: '', en: '' }, description: { de: '', en: '' }, tag: 'news', titleImg: null as File | null })
+  const emptyForm = () => ({ title: { de: '', en: '' }, description: { de: '', en: '' }, tag: 'news', titleImg: null as File | null, removeTitleImg: false })
   let form = $state(emptyForm())
 
   async function load() { loading = true; const { data } = await apiClient.get('/api/news'); items = data; loading = false }
@@ -34,7 +34,7 @@
     editItem = item
     form = { title: { de: item.title?.de ?? '', en: item.title?.en ?? '' },
       description: { de: item.description?.de ?? '', en: item.description?.en ?? '' },
-      tag: item.tag ?? 'news', titleImg: null }
+      tag: item.tag ?? 'news', titleImg: null, removeTitleImg: false }
     formError = ''; showModal = true
   }
   function closeModal() { showModal = false }
@@ -51,6 +51,7 @@
       fd.append('description_en', form.description.en ?? '')
       fd.append('tag', form.tag)
       if (form.titleImg) fd.append('titleImg', form.titleImg)
+      if (editItem) fd.append('removeTitleImg', String(form.removeTitleImg))
       if (editItem) await apiClient.patch(`/api/news/${editItem.id}`, fd)
       else          await apiClient.post('/api/news', fd)
       closeModal(); await load()
@@ -88,8 +89,8 @@
         <div class="admin-page-sub mt-0.5" style="letter-spacing: 0.04em;">{(item.tag ?? 'news').toUpperCase()} · {formatDate(item.created)}</div>
       </div>
       <div class="flex gap-2 shrink-0">
-        <button onclick={() => openEdit(item)} class="btn-icon admin-icon-btn edit"><i class="bi bi-pencil"></i></button>
-        <button onclick={() => { deleteTarget = item }} class="btn-icon admin-icon-btn danger"><i class="bi bi-trash"></i></button>
+        <button onclick={() => openEdit(item)} class="btn-icon admin-icon-btn edit" aria-label="Bearbeiten"><i class="bi bi-pencil"></i></button>
+        <button onclick={() => { deleteTarget = item }} class="btn-icon admin-icon-btn danger" aria-label="Löschen"><i class="bi bi-trash"></i></button>
       </div>
     </div>
   {/each}
@@ -109,7 +110,7 @@
       <LocaleTextInput label="Titel" bind:value={form.title} required={true} placeholder="Titel" />
       <LocaleTextInput label="Beschreibung" bind:value={form.description} required={true} multiline placeholder="Beschreibung" />
       <FormField label="Titelbild">
-        <ImageUpload bind:file={form.titleImg} preview={editItem?.titleImg?.url} />
+        <ImageUpload bind:file={form.titleImg} bind:removeExisting={form.removeTitleImg} preview={editItem?.titleImg?.url} />
       </FormField>
       <FormError message={formError} />
       <div class="flex justify-end gap-3 pt-2">

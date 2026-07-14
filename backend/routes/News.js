@@ -53,6 +53,9 @@ router.get('/', async (req, res) => {
 
 router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/NEWS').single('titleImg'), async (req, res) => {
     try {
+        // Neues Titelbild hat Vorrang vor dem Entfernen-Flag
+        const removeTitleImg = !req.file && req.body.removeTitleImg === 'true';
+
         const update = {
             ...parseNewsFields(req.body),
             ...(req.file && {
@@ -60,6 +63,9 @@ router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/NEWS').single('titleIm
                     url: req.file.path,
                     publicId: req.file.filename
                 }
+            }),
+            ...(removeTitleImg && {
+                titleImg: { url: null, publicId: null }
             })
         }
 
@@ -70,7 +76,7 @@ router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/NEWS').single('titleIm
             return res.status(404).json({ Error: 'News item was not found' });
         }
 
-        if (req.file && oldNews.titleImg?.publicId) {
+        if ((req.file || removeTitleImg) && oldNews.titleImg?.publicId) {
             await cloudinary.uploader.destroy(oldNews.titleImg.publicId);
         }
 

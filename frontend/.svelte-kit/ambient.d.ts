@@ -47,6 +47,7 @@ declare module '$env/static/private' {
 	export const NODE: string;
 	export const INIT_CWD: string;
 	export const BAGGAGE: string;
+	export const CLAUDE_PREVIEW_CLASSIFIER_FLOOR: string;
 	export const CLAUDE_CODE_OAUTH_SCOPES: string;
 	export const SHELL: string;
 	export const npm_config_allow_scripts: string;
@@ -84,7 +85,6 @@ declare module '$env/static/private' {
 	export const npm_config_npm_version: string;
 	export const NODE_USE_SYSTEM_CA: string;
 	export const XPC_FLAGS: string;
-	export const npm_package_engines_node: string;
 	export const npm_config_node_gyp: string;
 	export const npm_package_version: string;
 	export const XPC_SERVICE_NAME: string;
@@ -203,6 +203,7 @@ declare module '$env/dynamic/private' {
 		NODE: string;
 		INIT_CWD: string;
 		BAGGAGE: string;
+		CLAUDE_PREVIEW_CLASSIFIER_FLOOR: string;
 		CLAUDE_CODE_OAUTH_SCOPES: string;
 		SHELL: string;
 		npm_config_allow_scripts: string;
@@ -240,7 +241,6 @@ declare module '$env/dynamic/private' {
 		npm_config_npm_version: string;
 		NODE_USE_SYSTEM_CA: string;
 		XPC_FLAGS: string;
-		npm_package_engines_node: string;
 		npm_config_node_gyp: string;
 		npm_package_version: string;
 		XPC_SERVICE_NAME: string;

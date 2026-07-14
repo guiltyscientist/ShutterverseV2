@@ -10,7 +10,7 @@ return {
 	assets: new Set(["favicon.ico","logos/BIG.png","logos/ICON.png"]),
 	mimeTypes: {".png":"image/png"},
 	_: {
-		client: {start:"_app/immutable/entry/start.r7dJRgG9.js",app:"_app/immutable/entry/app.CIjdkmIa.js",imports:["_app/immutable/entry/start.r7dJRgG9.js","_app/immutable/chunks/BjY1Yf2p.js","_app/immutable/chunks/D1WA79gw.js","_app/immutable/chunks/BsBa6i9S.js","_app/immutable/chunks/CrDCbs5W.js","_app/immutable/entry/app.CIjdkmIa.js","_app/immutable/chunks/D1WA79gw.js","_app/immutable/chunks/DZ1CTYk6.js","_app/immutable/chunks/Dk1VFUiB.js","_app/immutable/chunks/CrDCbs5W.js","_app/immutable/chunks/_coCN-3T.js","_app/immutable/chunks/BKM9doyu.js","_app/immutable/chunks/DPKqNYV5.js","_app/immutable/chunks/p4SZs2L1.js","_app/immutable/chunks/DRnOUvSm.js","_app/immutable/chunks/BsBa6i9S.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
+		client: {start:"_app/immutable/entry/start.clrCU7tP.js",app:"_app/immutable/entry/app.DlCp95ek.js",imports:["_app/immutable/entry/start.clrCU7tP.js","_app/immutable/chunks/EpgElPHO.js","_app/immutable/chunks/DUa6H-zP.js","_app/immutable/chunks/Bl45AmXA.js","_app/immutable/chunks/ByFOxMH2.js","_app/immutable/entry/app.DlCp95ek.js","_app/immutable/chunks/DUa6H-zP.js","_app/immutable/chunks/hwibb_Gj.js","_app/immutable/chunks/B4PP2HJB.js","_app/immutable/chunks/ByFOxMH2.js","_app/immutable/chunks/CPaM4Qjx.js","_app/immutable/chunks/DGegomHV.js","_app/immutable/chunks/Dmqvd42r.js","_app/immutable/chunks/Cpvm5ccL.js","_app/immutable/chunks/C0NAFWf6.js","_app/immutable/chunks/Bl45AmXA.js"],stylesheets:[],fonts:[],uses_env_dynamic_public:false},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
 			__memo(() => import('./nodes/1.js')),
@@ -20,7 +20,9 @@ return {
 			__memo(() => import('./nodes/5.js')),
 			__memo(() => import('./nodes/6.js')),
 			__memo(() => import('./nodes/7.js')),
-			__memo(() => import('./nodes/8.js'))
+			__memo(() => import('./nodes/8.js')),
+			__memo(() => import('./nodes/9.js')),
+			__memo(() => import('./nodes/10.js'))
 		],
 		remotes: {
 			
@@ -41,31 +43,45 @@ return {
 				endpoint: null
 			},
 			{
+				id: "/admin/hero",
+				pattern: /^\/admin\/hero\/?$/,
+				params: [],
+				page: { layouts: [0,2,], errors: [1,,], leaf: 5 },
+				endpoint: null
+			},
+			{
 				id: "/admin/login",
 				pattern: /^\/admin\/login\/?$/,
 				params: [],
-				page: { layouts: [0,2,], errors: [1,,], leaf: 5 },
+				page: { layouts: [0,2,], errors: [1,,], leaf: 6 },
 				endpoint: null
 			},
 			{
 				id: "/admin/news",
 				pattern: /^\/admin\/news\/?$/,
 				params: [],
-				page: { layouts: [0,2,], errors: [1,,], leaf: 6 },
+				page: { layouts: [0,2,], errors: [1,,], leaf: 7 },
 				endpoint: null
 			},
 			{
 				id: "/admin/studios",
 				pattern: /^\/admin\/studios\/?$/,
 				params: [],
-				page: { layouts: [0,2,], errors: [1,,], leaf: 7 },
+				page: { layouts: [0,2,], errors: [1,,], leaf: 8 },
 				endpoint: null
 			},
 			{
 				id: "/admin/team",
 				pattern: /^\/admin\/team\/?$/,
 				params: [],
-				page: { layouts: [0,2,], errors: [1,,], leaf: 8 },
+				page: { layouts: [0,2,], errors: [1,,], leaf: 9 },
+				endpoint: null
+			},
+			{
+				id: "/admin/users",
+				pattern: /^\/admin\/users\/?$/,
+				params: [],
+				page: { layouts: [0,2,], errors: [1,,], leaf: 10 },
 				endpoint: null
 			}
 		],

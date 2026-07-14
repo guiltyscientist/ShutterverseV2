@@ -1,25 +1,25 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import axios from 'axios'
+  import { swrGet } from '$lib/utils/swr'
   import { useLocale } from '$lib/i18n/index.svelte'
   import { reveal } from '$lib/actions/reveal'
+  import { nearViewport } from '$lib/actions/nearViewport'
+  import { cldUrl, CLD } from '$lib/utils/cloudinary'
 
   const { t, lt } = useLocale()
 
   interface Studio {
     id: string; title: any; description: any; equipment: any
     titleImg?: { url: string }; images?: { url: string }[]
+    inspiredBy?: string[]; bookingUrl?: string | null; isNew?: boolean
   }
 
   let studios = $state<Studio[]>([])
+  let activeImg = $state<Record<string, string>>({})
+  // Bilder laden erst, wenn die jeweilige Sektion in Viewport-Nähe kommt
+  let shown = $state<Record<string, boolean>>({})
 
   const THEMES = ['theme-cyberpunk', 'theme-japanese', 'theme-hospital'] as const
-
-  const INSPIRED: Record<number, string[]> = {
-    0: ['Edgerunners', 'Ghost in the Shell', 'Akira', 'Blade Runner'],
-    1: ['Demon Slayer', 'Genshin Impact', 'Inuyasha', 'Mononoke'],
-    2: ['Silent Hill', 'Resident Evil', 'SCP', 'Junji Ito'],
-  }
 
   const ANNOTATIONS = [
     { tl: 'ISO 800 · 24mm · f/1.8', br: '1/60s · WB 3200K' },
@@ -28,12 +28,43 @@
   ]
 
   function theme(i: number) { return THEMES[i % THEMES.length] }
-  function inspired(i: number) { return INSPIRED[i % 3] }
   function annot(i: number) { return ANNOTATIONS[i % ANNOTATIONS.length] }
   function padNum(n: number) { return n < 10 ? `0${n}` : `${n}` }
 
   function getImg(studio: Studio): string | null {
     return studio.titleImg?.url ?? studio.images?.[0]?.url ?? null
+  }
+
+  function galleryOf(studio: Studio): string[] {
+    const urls = [studio.titleImg?.url, ...(studio.images ?? []).map(img => img.url)]
+    return [...new Set(urls.filter((u): u is string => Boolean(u)))]
+  }
+
+  const prefetched = new Set<string>()
+
+  function preload(url: string): Promise<void> {
+    return new Promise((resolve) => {
+      if (prefetched.has(url)) return resolve()
+      prefetched.add(url)
+      const img = new Image()
+      img.onload = () => resolve()
+      img.onerror = () => resolve()
+      img.src = url
+    })
+  }
+
+  // Sobald eine Detail-Sektion sichtbar wird, die ganze Galerie im Hintergrund
+  // vorladen — sequenziell, damit das sichtbare Hauptbild zuerst ankommt
+  async function prefetchGallery(studio: Studio) {
+    for (const url of galleryOf(studio)) {
+      const full = cldUrl(url, CLD.main)
+      if (full) await preload(full)
+    }
+  }
+
+  function prefetchMain(url: string) {
+    const full = cldUrl(url, CLD.main)
+    if (full) preload(full)
   }
 
   function getEquipmentItems(studio: Studio): string[] {
@@ -42,11 +73,10 @@
     return eq.split(',').map(s => s.trim()).filter(Boolean).slice(0, 4)
   }
 
-  onMount(async () => {
-    try {
-      const { data } = await axios.get('/api/studios')
+  onMount(() => {
+    swrGet<Studio[]>('/api/studios', (data) => {
       studios = Array.isArray(data) ? data : []
-    } catch { studios = [] }
+    })
   })
 </script>
 
@@ -64,8 +94,8 @@
 
     <div class="sets-grid">
       {#each studios as studio, i}
-        {@const img = getImg(studio)}
-        <article class="set-card {theme(i)}" use:reveal>
+        {@const img = shown[`card-${studio.id}`] ? cldUrl(getImg(studio), CLD.card) : null}
+        <article class="set-card {theme(i)}" use:reveal use:nearViewport={() => { shown[`card-${studio.id}`] = true }}>
           <a href="#set-{studio.id}" class="set-card-link" aria-label={lt(studio.title)}></a>
           <div class="sc-frame">
             <div class="sc-img-clip">
@@ -81,7 +111,7 @@
             <div class="annot-corner br"></div>
           </div>
           <div class="sc-label">
-            <div class="sc-num">SET / {padNum(i + 1)}{i === studios.length - 1 && studios.length > 1 ? ' · NEW' : ''}</div>
+            <div class="sc-num">SET / {padNum(i + 1)}{studio.isNew ? ' · NEW' : ''}</div>
           </div>
         </article>
       {/each}
@@ -91,27 +121,62 @@
 
 <!-- Set Detail sections -->
 {#each studios as studio, i}
-  {@const img = getImg(studio)}
+  {@const gallery = galleryOf(studio)}
+  {@const rawImg = activeImg[studio.id] ?? getImg(studio)}
+  {@const idx = Math.max(0, gallery.indexOf(rawImg))}
+  {@const img = shown[`det-${studio.id}`] && rawImg ? cldUrl(rawImg, CLD.main) : null}
   {@const a = annot(i)}
   {@const equipment = getEquipmentItems(studio)}
   {@const isReverse = i % 2 === 1}
-  {@const isNew = i === studios.length - 1 && studios.length > 1}
+  {@const isNew = !!studio.isNew}
 
   <section class="sv-set-detail vh" id="set-{studio.id}">
     <div class="vh-inner">
-      <article class="set-detail {isReverse ? 'reverse' : ''}" use:reveal>
+      <article class="set-detail {isReverse ? 'reverse' : ''}" use:reveal use:nearViewport={() => { shown[`det-${studio.id}`] = true; prefetchGallery(studio) }}>
         <!-- Media -->
-        <div class="sdm {theme(i)}">
-          <div class="sdm-img" style={img ? `background-image: url(${img})` : ''}></div>
-          <div class="annot annot-tl">{a.tl}</div>
-          <div class="annot annot-tr"><span class="dot-mag"></span> REC · 24P</div>
-          <div class="annot annot-bl">// SET {padNum(i + 1)} · {lt(studio.title).toUpperCase()}</div>
-          <div class="annot annot-br">⟶ {a.br}</div>
-          <div class="annot-corner tl"></div>
-          <div class="annot-corner tr"></div>
-          <div class="annot-corner bl"></div>
-          <div class="annot-corner br"></div>
-          {#if isNew}<span class="badge-new">NEW</span>{/if}
+        <div class="sdm-wrap">
+          <div class="sdm {theme(i)}">
+            <div class="sdm-img" style={img ? `background-image: url(${img})` : ''}></div>
+            <div class="annot annot-tl">{a.tl}</div>
+            <div class="annot annot-tr"><span class="dot-mag"></span> REC · 24P</div>
+            <div class="annot annot-bl">// SET {padNum(i + 1)} · {lt(studio.title).toUpperCase()}</div>
+            <div class="annot annot-br">⟶ {a.br}</div>
+            <div class="annot-corner tl"></div>
+            <div class="annot-corner tr"></div>
+            <div class="annot-corner bl"></div>
+            <div class="annot-corner br"></div>
+            {#if isNew}<span class="badge-new">NEW</span>{/if}
+            {#if gallery.length > 1}
+              {#if idx > 0}
+                <button type="button" class="sdm-nav left" aria-label="Vorheriges Bild"
+                  onclick={() => { activeImg[studio.id] = gallery[idx - 1]; prefetchMain(gallery[idx - 1]) }}>
+                  <span class="sdm-nav-icon"></span>
+                </button>
+              {/if}
+              {#if idx < gallery.length - 1}
+                <button type="button" class="sdm-nav right" aria-label="Nächstes Bild"
+                  onclick={() => { activeImg[studio.id] = gallery[idx + 1]; prefetchMain(gallery[idx + 1]) }}>
+                  <span class="sdm-nav-icon"></span>
+                </button>
+              {/if}
+            {/if}
+          </div>
+          {#if gallery.length > 1}
+            <div class="sdm-thumbs">
+              {#each gallery as url, gi}
+                <button
+                  type="button"
+                  class="sdm-thumb"
+                  class:active={url === rawImg}
+                  style={shown[`det-${studio.id}`] ? `background-image: url(${cldUrl(url, CLD.thumb)})` : ''}
+                  aria-label="Bild {gi + 1} anzeigen"
+                  onpointerenter={() => prefetchMain(url)}
+                  onfocus={() => prefetchMain(url)}
+                  onclick={() => { activeImg[studio.id] = url }}
+                ></button>
+              {/each}
+            </div>
+          {/if}
         </div>
 
         <!-- Content -->
@@ -139,17 +204,24 @@
             </div>
           {/if}
 
-          <div class="inspired-by">
-            <div class="ib-label">{t.setsDesign.ib}</div>
-            <div class="ib-chips">
-              {#each inspired(i) as chip}
-                <span>{chip}</span>
-              {/each}
+          {#if studio.inspiredBy?.length}
+            <div class="inspired-by">
+              <div class="ib-label">{t.setsDesign.ib}</div>
+              <div class="ib-chips">
+                {#each studio.inspiredBy as chip}
+                  <span>{chip}</span>
+                {/each}
+              </div>
             </div>
-          </div>
+          {/if}
 
           <div class="sd-cta-row">
-            <a href="#booking" class="sv-btn">
+            <a
+              href={studio.bookingUrl || '#booking'}
+              target={studio.bookingUrl ? '_blank' : undefined}
+              rel={studio.bookingUrl ? 'noopener noreferrer' : undefined}
+              class="sv-btn"
+            >
               <span>{t.setsDesign.cta}</span>
               <span class="arrow"></span>
             </a>

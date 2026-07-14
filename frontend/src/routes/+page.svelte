@@ -9,8 +9,21 @@
   import Impressum from '$lib/components/Impressum.svelte'
   import { useLocale } from '$lib/i18n/index.svelte'
   import { reveal } from '$lib/actions/reveal'
+  import { swrGet } from '$lib/utils/swr'
+  import { cldUrl } from '$lib/utils/cloudinary'
 
-  const { t } = useLocale()
+  const { t, lt } = useLocale()
+
+  const BOOKING_URL = 'https://booking.shutterverse.at'
+
+  interface TeaserSet { id: string; title: any; titleImg: string | null; bookingUrl: string | null }
+  let teaserSets = $state<TeaserSet[]>([])
+
+  onMount(() => {
+    swrGet<{ studios: TeaserSet[] }>('/api/studios/title-images', (data) => {
+      teaserSets = Array.isArray(data?.studios) ? data.studios : []
+    })
+  })
 
   onMount(() => {
     // Browser/SvelteKit restore the previous scroll position on reload — this
@@ -67,7 +80,7 @@
   <title>ShutterVerse Studio</title>
 </svelte:head>
 
-<!-- svelte-ignore a11y-click-events-have-key-events a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_static_element_interactions -->
 <div id="app" onclick={smoothScroll}>
   <NavBar />
   <Home />
@@ -78,12 +91,43 @@
 
   <section class="sv-booking" id="booking">
     <div class="booking-inner" use:reveal>
-      <h2>{t.bookingSection.h}</h2>
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">{t.bookingSection.eyebrow}</div>
+          <h2>{t.bookingSection.h}</h2>
+        </div>
+      </div>
       <p>{t.bookingSection.p}</p>
-      <a href="https://booking.shutterverse.at" target="_blank" rel="noopener noreferrer" class="sv-btn">
-        <span>{t.bookingSection.cta}</span>
-        <span class="arrow"></span>
-      </a>
+      {#if teaserSets.length > 0}
+        <div class="bk-sets">
+          {#each teaserSets as s (s.id)}
+            <a
+              class="bk-set"
+              href={s.bookingUrl || BOOKING_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="{lt(s.title)} – {t.bookingSection.cta}"
+            >
+              <div class="bk-set-media">
+                {#if s.titleImg}
+                  <div class="bk-set-img" style="background-image: url({cldUrl(s.titleImg, 'w_600,h_800,c_fill,q_auto,f_auto')})"></div>
+                {/if}
+                <div class="bk-set-scrim"></div>
+                <span class="bk-set-title">{lt(s.title)}</span>
+              </div>
+              <span class="bk-set-cta">
+                <span>{t.bookingSection.cta}</span>
+                <span class="arrow"></span>
+              </span>
+            </a>
+          {/each}
+        </div>
+      {:else}
+        <a href={BOOKING_URL} target="_blank" rel="noopener noreferrer" class="sv-btn">
+          <span>{t.bookingSection.cta}</span>
+          <span class="arrow"></span>
+        </a>
+      {/if}
     </div>
   </section>
 

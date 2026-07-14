@@ -24,6 +24,7 @@
     roles: { de: [] as string[], en: [] as string[] },
     socialMedia: [] as { platform: string; url: string }[],
     profilImg: null as File | null,
+    removeProfilImg: false,
   })
   let form = $state(emptyForm())
 
@@ -37,7 +38,7 @@
       description: { de: item.description?.de ?? '', en: item.description?.en ?? '' },
       roles: { de: [...(item.roles?.de || [])], en: [...(item.roles?.en || [])] },
       socialMedia: item.socialMedia ? item.socialMedia.map((s: any) => ({ ...s })) : [],
-      profilImg: null }
+      profilImg: null, removeProfilImg: false }
     formError = ''; showModal = true
   }
   function closeModal() { showModal = false }
@@ -59,6 +60,7 @@
       fd.append('roles_en', JSON.stringify(form.roles.en))
       fd.append('socialMedia', JSON.stringify(form.socialMedia.filter(s => s.platform && s.url)))
       if (form.profilImg) fd.append('profilImg', form.profilImg)
+      if (editItem) fd.append('removeProfilImg', String(form.removeProfilImg))
       if (editItem) await apiClient.patch(`/api/team/${editItem.id}`, fd)
       else          await apiClient.post('/api/team', fd)
       closeModal(); await load()
@@ -92,8 +94,8 @@
         <div class="admin-page-sub mt-0.5 truncate" style="letter-spacing: 0.04em;">{item.roles?.de?.join(', ') || '–'}</div>
       </div>
       <div class="flex gap-2 shrink-0">
-        <button onclick={() => openEdit(item)} class="btn-icon admin-icon-btn edit"><i class="bi bi-pencil"></i></button>
-        <button onclick={() => { deleteTarget = item }} class="btn-icon admin-icon-btn danger"><i class="bi bi-trash"></i></button>
+        <button onclick={() => openEdit(item)} class="btn-icon admin-icon-btn edit" aria-label="Bearbeiten"><i class="bi bi-pencil"></i></button>
+        <button onclick={() => { deleteTarget = item }} class="btn-icon admin-icon-btn danger" aria-label="Löschen"><i class="bi bi-trash"></i></button>
       </div>
     </div>
   {/each}
@@ -124,7 +126,7 @@
                 {#each platforms as p}<option value={p}>{p}</option>{/each}
               </select>
               <input bind:value={sm.url} type="url" class="input flex-1" placeholder="URL" />
-              <button type="button" onclick={() => removeSocialMedia(i)} class="btn-icon admin-icon-btn danger">
+              <button type="button" onclick={() => removeSocialMedia(i)} class="btn-icon admin-icon-btn danger" aria-label="Eintrag entfernen">
                 <i class="bi bi-x-lg"></i>
               </button>
             </div>
@@ -135,7 +137,7 @@
         </button>
       </FormField>
       <FormField label="Profilbild">
-        <ImageUpload bind:file={form.profilImg} preview={editItem?.profilImg?.url} />
+        <ImageUpload bind:file={form.profilImg} bind:removeExisting={form.removeProfilImg} preview={editItem?.profilImg?.url} />
       </FormField>
       <FormError message={formError} />
       <div class="flex justify-end gap-3 pt-2">

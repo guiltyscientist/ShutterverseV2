@@ -86,7 +86,7 @@
     <!-- Main content -->
     <div class="flex-1 md:ml-64 flex flex-col min-h-screen">
       <header class="admin-topbar px-6 py-4 flex items-center gap-4 md:hidden">
-        <button onclick={() => { sidebarOpen = !sidebarOpen }} class="admin-icon-btn">
+        <button onclick={() => { sidebarOpen = !sidebarOpen }} class="admin-icon-btn" aria-label="Menü umschalten">
           <i class="bi bi-list text-2xl"></i>
         </button>
         <span class="admin-sidebar-brand">Admin Panel</span>

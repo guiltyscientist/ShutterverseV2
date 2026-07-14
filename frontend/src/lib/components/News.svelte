@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import axios from 'axios'
+  import { swrGet } from '$lib/utils/swr'
   import { useLocale } from '$lib/i18n/index.svelte'
   import { reveal } from '$lib/actions/reveal'
 
@@ -48,14 +48,12 @@
     applyPageSize()
     mq.addEventListener('change', applyPageSize)
 
-    axios.get('/api/news')
-      .then(({ data }) => {
-        // Newest first — older entries land on the following carousel pages
-        newsData = [...data].sort(
-          (a: NewsItem, b: NewsItem) => new Date(b.created).getTime() - new Date(a.created).getTime()
-        )
-      })
-      .catch(() => { newsData = [] })
+    swrGet<NewsItem[]>('/api/news', (data) => {
+      // Newest first — older entries land on the following carousel pages
+      newsData = Array.isArray(data)
+        ? [...data].sort((a, b) => new Date(b.created).getTime() - new Date(a.created).getTime())
+        : []
+    })
 
     return () => mq.removeEventListener('change', applyPageSize)
   })

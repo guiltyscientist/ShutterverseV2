@@ -17,7 +17,10 @@ const StudioSchema = new Schema({
     images: [{
         url: { type: String },
         publicId: { type: String },
-    }]
+    }],
+    inspiredBy: [{ type: String }],
+    bookingUrl: { type: String, default: null },
+    isNew: { type: Boolean, default: false }
 }, { versionKey: false });
 
 export default model('Studio', StudioSchema, 'Studios');

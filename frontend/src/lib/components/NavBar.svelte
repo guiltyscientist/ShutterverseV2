@@ -41,6 +41,9 @@
     <img src="/logos/BIG.png" alt="ShutterVerse Studio" class="sv-logo" />
   </a>
 
+  <!-- Abdunkelnde linke Hälfte hinter dem Menü-Panel, schließt beim Antippen -->
+  <button class="sv-menu-overlay" aria-label="Menü schließen" tabindex="-1" onclick={closeMenu}></button>
+
   <nav class="sv-nav-links">
     {#each [
       { href: '#top',      label: t.nav.home },

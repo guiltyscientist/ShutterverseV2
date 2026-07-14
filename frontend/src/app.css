@@ -152,13 +152,54 @@ html, body { background: var(--bg-0); }
 }
 
 #app {
-  background: var(--bg-0);
+  /* Hintergrund liegt auf dem fixen Gradient-Layer (::before), body liefert bg-0 als Basis.
+     isolation erzeugt den Stacking-Kontext, damit ::before (z-index -1) ÜBER dem
+     body-Hintergrund liegt statt dahinter zu verschwinden. */
+  position: relative;
+  isolation: isolate;
   color: var(--ink-0);
   font-family: var(--f-body);
   font-size: var(--t-body);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
+}
+/* Site-weiter Hero-Gradient als fixe Ebene hinter allen Sektionen.
+   Basis (Violett/Blau) atmet nur ganz leicht — das Schimmern kommt vom
+   separat driftenden Magenta-Layer (::after). */
+#app::before {
+  content: "";
+  position: fixed;
+  inset: -12vh -12vw;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 30% 40%, #2a1a4a 0%, transparent 50%),
+    radial-gradient(circle at 70% 60%, #0a3a5a 0%, transparent 50%),
+    linear-gradient(135deg, #07070d, #0c0c16);
+  animation: bg-breathe 34s ease-in-out infinite alternate;
+}
+@keyframes bg-breathe {
+  0%   { transform: scale(1); }
+  100% { transform: scale(1.07); }
+}
+/* Magenta-Schimmer: wandert langsam durch den unteren Bildbereich
+   und pulsiert dabei in der Intensität */
+#app::after {
+  content: "";
+  position: fixed;
+  inset: -20vh -20vw;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 44% 36% at 50% 82%, #4a0e2a 0%, transparent 68%),
+    radial-gradient(ellipse 30% 24% at 52% 84%, rgba(255,46,108,0.10), transparent 70%);
+  animation: magenta-drift 19s ease-in-out infinite alternate;
+}
+@keyframes magenta-drift {
+  0%   { transform: translate3d(-7%, 2%, 0) scale(1);    opacity: 0.55; }
+  45%  { transform: translate3d(3%, -3%, 0) scale(1.18); opacity: 1; }
+  100% { transform: translate3d(8%, 1%, 0) scale(1.02);  opacity: 0.7; }
 }
 #app a { color: inherit; text-decoration: none; }
 #app img { display: block; max-width: 100%; }
@@ -218,8 +259,8 @@ html, body { background: var(--bg-0); }
   0%, 100% { box-shadow: 0 0 0 1px rgba(0,240,255,0.45), 0 0 18px rgba(0,240,255,0.28), 0 8px 40px -10px rgba(0,240,255,0.45); }
   50%      { box-shadow: 0 0 0 1px rgba(0,240,255,0.9),  0 0 34px rgba(0,240,255,0.5),  0 12px 60px -8px rgba(0,240,255,0.7); }
 }
-.sv-btn .arrow { width: 18px; height: 1px; background: currentColor; position: relative; flex-shrink: 0; }
-.sv-btn .arrow::after {
+.sv-btn .arrow, .bk-set-cta .arrow { width: 18px; height: 1px; background: currentColor; position: relative; flex-shrink: 0; }
+.sv-btn .arrow::after, .bk-set-cta .arrow::after {
   content: ""; position: absolute; right: 0; top: -3px;
   width: 7px; height: 7px;
   border-top: 1px solid currentColor;
@@ -254,11 +295,13 @@ html, body { background: var(--bg-0); }
 }
 .section-head {
   display: flex;
-  align-items: end;
-  justify-content: space-between;
-  gap: 40px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
 }
+/* Zentriert bekommt das Eyebrow eine zweite Linie rechts für Symmetrie */
+.section-head .eyebrow::after { content: ""; width: 28px; height: 1px; background: var(--neon-cyan); }
 .section-head h2 {
   font-family: var(--f-display);
   font-weight: 700;
@@ -275,7 +318,7 @@ html, body { background: var(--bg-0); }
   letter-spacing: 0.18em;
   color: var(--ink-2);
   text-transform: uppercase;
-  text-align: right;
+  text-align: center;
 }
 
 /* ===== Nav ===== */
@@ -342,6 +385,7 @@ html, body { background: var(--bg-0); }
 }
 /* Menu-internal language switch — only rendered inside the open mobile menu */
 .menu-lang { display: none; }
+.sv-menu-overlay { display: none; background: none; border: none; padding: 0; }
 .lang-toggle button {
   background: none; border: none;
   color: var(--ink-2);
@@ -510,8 +554,8 @@ html, body { background: var(--bg-0); }
 }
 
 /* ===== News ===== */
-.sv-news { background: var(--bg-0); border-top: 1px solid rgba(255,255,255,0.05); }
-.news-empty { display: flex; flex-direction: column; justify-content: center; gap: 16px; flex: 1; }
+.sv-news { background: transparent; border-top: 1px solid rgba(255,255,255,0.05); }
+.news-empty { display: flex; flex-direction: column; justify-content: flex-start; align-items: center; text-align: center; gap: 16px; flex: 1; }
 .news-empty-title { font-family: var(--f-display); font-weight: 700; font-size: clamp(28px, 3vw, 44px); text-transform: uppercase; letter-spacing: -0.01em; color: var(--ink-1); }
 .news-empty-desc { font-family: var(--f-mono); font-size: var(--t-mono); letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-2); }
 /* Row claims the section's remaining height — cards stretch to fill it, and
@@ -629,13 +673,14 @@ html, body { background: var(--bg-0); }
 }
 
 /* ===== Sets Overview ===== */
-.sv-sets { background: var(--bg-0); }
+.sv-sets { background: transparent; }
 .sv-sets .vh-inner { gap: 20px; }
 /* Grid fills remaining height so cards never overflow the viewport */
 .sets-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: minmax(0, 1fr); gap: 24px;
   flex: 1; min-height: 0; overflow: visible; align-items: stretch;
-  max-height: clamp(200px, 52vh, 460px);
+  /* Höherer Deckel: Karten füllen die Sektionshöhe und werden hochkant */
+  max-height: clamp(200px, 76vh, 760px);
   padding: 10px; margin: -10px; /* room for outside corners */
 }
 .set-card {
@@ -695,7 +740,7 @@ html, body { background: var(--bg-0); }
   background: linear-gradient(180deg, transparent 40%, rgba(7,7,13,0.85) 100%);
   z-index: 1;
 }
-.sc-num { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.22em; color: var(--ink-2); text-transform: uppercase; transition: color .3s ease; }
+.sc-num { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.22em; color: var(--neon-cyan); text-transform: uppercase; transition: color .3s ease; }
 /* Corners sit on .sc-frame with overflow:visible, poke outside the image */
 .set-card .sc-frame .annot-corner {
   border-color: rgba(255,255,255,0.3); opacity: 1; transition: border-color .3s ease;
@@ -709,7 +754,7 @@ html, body { background: var(--bg-0); }
 .set-card .sc-scrim { filter: brightness(0.72); transition: filter .35s ease; }
 .set-card:hover .sc-img,
 .set-card:hover .sc-scrim { filter: brightness(1); }
-.set-card:hover .sc-num { color: var(--ink-0); }
+.set-card:hover .sc-num { color: var(--neon-cyan); }
 .set-card:hover .sc-frame .annot-corner { border-color: rgba(255,255,255,0.9); }
 .set-card h3 {
   font-family: var(--f-display); font-weight: 700;
@@ -733,7 +778,7 @@ html, body { background: var(--bg-0); }
 .sc-bottom { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
 
 /* ===== Set Detail ===== */
-.sv-set-detail { background: var(--bg-0); }
+.sv-set-detail { background: transparent; }
 /* Section overhangs viewport bottom by ~navH (≈62px) due to scroll offset.
    padding-bottom = visual_gap_top (24px) + navH (62px) = 86px for equal spacing. */
 .sv-set-detail.vh { padding-bottom: 100px; }
@@ -753,12 +798,55 @@ html, body { background: var(--bg-0); }
   grid-template-columns: minmax(380px, 1fr) minmax(0, 1.7fr);
   padding-right: 0; padding-left: var(--pad-x);
 }
-.set-detail.reverse .sdm { order: 2; }
+/* Media column: main image on top, thumbnail strip below */
+.sdm-wrap {
+  display: flex; flex-direction: column; gap: 12px;
+  min-height: 0; max-height: 100%;
+}
+.set-detail.reverse .sdm-wrap { order: 2; }
+.sdm-thumbs {
+  display: flex; gap: 10px;
+  width: 100%; flex: 0 0 auto;
+  overflow-x: auto; overflow-y: hidden;
+  scrollbar-width: thin;
+}
+.sdm-thumb {
+  width: 72px; height: 72px; flex: 0 0 auto;
+  background-size: cover; background-position: center; background-color: var(--bg-2);
+  border: 1px solid rgba(255,255,255,0.12); padding: 0; cursor: pointer;
+  opacity: 0.55;
+  transition: opacity .25s ease, border-color .25s ease, box-shadow .25s ease;
+}
+.sdm-thumb:hover { opacity: 0.85; }
+.sdm-thumb.active {
+  opacity: 1; border-color: var(--neon-cyan);
+  box-shadow: 0 0 12px rgba(0,240,255,0.25);
+}
 .sdm {
-  position: relative; overflow: hidden;
+  position: relative; overflow: hidden; flex: 1;
   background: var(--bg-2); border: 1px solid rgba(255,255,255,0.06);
   align-self: stretch; min-height: 0; max-height: 100%;
 }
+/* Galerie-Navigation über dem Hauptbild */
+.sdm-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  z-index: 4; width: 44px; height: 44px; padding: 0; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(7,7,13,0.55); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: background .2s ease, border-color .2s ease;
+}
+.sdm-nav:hover { background: rgba(7,7,13,0.8); border-color: var(--neon-cyan); }
+.sdm-nav.left { left: 14px; }
+.sdm-nav.right { right: 14px; }
+.sdm-nav-icon {
+  width: 11px; height: 11px; display: block;
+  border-left: 2px solid var(--ink-0); border-bottom: 2px solid var(--ink-0);
+  transition: border-color .2s ease;
+}
+.sdm-nav.left .sdm-nav-icon { transform: rotate(45deg); margin-left: 4px; }
+.sdm-nav.right .sdm-nav-icon { transform: rotate(-135deg); margin-right: 4px; }
+.sdm-nav:hover .sdm-nav-icon { border-color: var(--neon-cyan); }
 .sdm-img {
   position: absolute; inset: 0;
   transition: transform 1s cubic-bezier(.16,1,.3,1);
@@ -843,7 +931,7 @@ html, body { background: var(--bg-0); }
   position: absolute; z-index: 0; top: -10px; right: -20px;
   font-family: var(--f-display); font-weight: 800;
   font-size: clamp(180px, 22vw, 320px); line-height: 0.78;
-  -webkit-text-stroke: 1px rgba(255,255,255,0.08);
+  -webkit-text-stroke: 2.5px rgba(255,255,255,0.1);
   color: transparent; pointer-events: none; user-select: none;
 }
 /* Ghost number pulsing — stroke colour only, no filter/opacity to avoid box artefacts */
@@ -852,7 +940,7 @@ html, body { background: var(--bg-0); }
   font-family: var(--f-display); font-weight: 800;
   font-size: clamp(180px, 22vw, 320px); line-height: 0.78;
   color: transparent;
-  -webkit-text-stroke: 2px rgba(0, 240, 255, 0.08);
+  -webkit-text-stroke: 3.5px rgba(0, 240, 255, 0.08);
   pointer-events: none; user-select: none;
   animation: num-pulse 6s ease-in-out infinite;
 }
@@ -889,21 +977,82 @@ html, body { background: var(--bg-0); }
 .sd-price .v { font-family: var(--f-display); font-weight: 700; font-size: 28px; color: var(--ink-0); }
 
 /* ===== Location ===== */
-.sv-location { background: var(--bg-1); }
-.location-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 48px; align-items: stretch; }
-.address-block { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; margin-bottom: 32px; }
+/* Weiche Ein-/Ausblendung statt harter Kanten an den Sektionsgrenzen */
+.sv-location {
+  background: linear-gradient(180deg,
+    transparent 0%,
+    rgba(12,12,22,0.55) 14%,
+    rgba(12,12,22,0.55) 86%,
+    transparent 100%);
+}
+/* Info-Reihe oben, Karte darunter über volle Breite — füllt die Sektionshöhe */
+.location-grid { display: flex; flex-direction: column; gap: 32px; flex: 1; min-height: 0; }
+.location-info { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; align-items: start; }
+.address-block { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; }
 .addr-label { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.2em; color: var(--ink-2); text-transform: uppercase; margin-bottom: 8px; }
 .address-block p { font-size: 20px; line-height: 1.45; color: var(--ink-0); }
-.transit-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 14px; }
-.transit-list li { display: flex; gap: 14px; align-items: center; font-family: var(--f-mono); font-size: 13px; color: var(--ink-1); }
-.transit-list li .pill { width: 36px; text-align: center; padding: 4px 0; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; background: var(--ink-0); color: var(--bg-0); flex-shrink: 0; }
-.transit-list li .pill.u { background: var(--neon-cyan); color: var(--bg-0); }
-.transit-list li .pill.s { background: var(--neon-magenta); color: var(--ink-0); }
-.transit-list li .pill.p { background: rgba(255,255,255,0.1); color: var(--ink-1); }
-.map-wrap { position: relative; min-height: 460px; height: 100%; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
-.map-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; filter: invert(0.92) hue-rotate(180deg) saturate(0.6) contrast(0.95); }
+.dir-block { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 24px; }
+.dir-title {
+  display: flex; gap: 14px; align-items: center;
+  font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--ink-0); margin-bottom: 12px;
+}
+.dir-title .pill { width: 36px; text-align: center; padding: 4px 0; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; background: var(--ink-0); color: var(--bg-0); flex-shrink: 0; }
+.dir-title .pill.u { background: var(--neon-cyan); color: var(--bg-0); }
+.dir-title .pill.s { background: var(--neon-magenta); color: var(--ink-0); }
+.dir-list { list-style: none; padding: 0 0 0 50px; display: flex; flex-direction: column; gap: 8px; }
+.dir-list li {
+  position: relative; font-family: var(--f-mono); font-size: 13px;
+  color: var(--ink-1); line-height: 1.5;
+}
+.dir-list li::before { content: "–"; position: absolute; left: -18px; color: var(--ink-2); }
+.map-wrap { position: relative; flex: 1; min-height: 240px; max-height: 44vh; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+.map-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+/* Consent placeholder: rein CSS-generierte "Karte" — lädt nichts von Google */
+.map-placeholder {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+    linear-gradient(0deg, rgba(255,255,255,0.07) 1px, transparent 1px),
+    radial-gradient(ellipse 50% 40% at 60% 40%, rgba(0,240,255,0.08), transparent 65%),
+    radial-gradient(ellipse 40% 50% at 30% 70%, rgba(255,46,108,0.05), transparent 65%),
+    var(--bg-2);
+  background-size: 56px 56px, 56px 56px, 100% 100%, 100% 100%, 100% 100%;
+  filter: blur(4px);
+  transform: scale(1.04); /* verhindert helle Blur-Ränder */
+}
+.map-consent {
+  position: absolute; inset: 0; z-index: 2;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 20px; text-align: center; padding: 32px;
+  background: rgba(7,7,13,0.55);
+}
+.map-consent p { max-width: 46ch; font-size: 13px; line-height: 1.6; color: var(--ink-1); }
+.map-consent .sv-btn { padding: 14px 24px; font-size: 12px; }
+.map-consent-hint {
+  font-family: var(--f-mono); font-size: 10px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--ink-2);
+}
+/* Eigener Studio-Pin in der Kartenmitte (Embed ist per ll exakt darauf zentriert) */
+.map-pin {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--neon-magenta); border: 3px solid #fff;
+  box-shadow: 0 0 14px rgba(255,46,108,0.8);
+  z-index: 2; pointer-events: none;
+}
+.map-pin::after {
+  content: ""; position: absolute; inset: -10px;
+  border-radius: 50%; border: 2px solid rgba(255,46,108,0.55);
+  animation: pin-ping 1.8s ease-out infinite;
+}
+@keyframes pin-ping {
+  0%   { transform: scale(0.6); opacity: 1; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
 .map-overlay {
-  position: absolute; top: 20px; left: 20px;
+  position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+  white-space: nowrap; max-width: calc(100% - 40px);
   background: rgba(7,7,13,0.85); backdrop-filter: blur(8px);
   border: 1px solid rgba(0,240,255,0.4); padding: 16px 20px;
   font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.18em;
@@ -913,9 +1062,19 @@ html, body { background: var(--bg-0); }
 .map-overlay .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--neon-cyan); box-shadow: 0 0 12px var(--neon-cyan); animation: pulse 1.6s ease-in-out infinite; }
 
 /* ===== About + Team ===== */
-.sv-about { background: var(--bg-0); }
-.about-layout { display: grid; grid-template-columns: 1fr 1.1fr; gap: clamp(48px, 6vw, 100px); align-items: center; }
+.sv-about { background: transparent; }
+/* Sektion bleibt volle Viewport-Höhe; die Inhalte verteilen sich über die
+   gesamte Höhe, damit kein Leerraum unten entsteht */
+.about-layout {
+  display: grid; grid-template-columns: 1fr 1.1fr;
+  gap: clamp(48px, 6vw, 100px);
+  align-items: stretch; flex: 1; min-height: 0;
+}
+.about-left { text-align: center; display: flex; flex-direction: column; justify-content: center; }
 .about-left .eyebrow { margin-bottom: 32px; }
+/* Trennlinie über der Headline — spiegelt die untere Linie von .about-meta */
+.about-rule { width: min(360px, 80%); height: 1px; background: rgba(255,255,255,0.08); margin: 0 auto 32px; }
+.about-left .eyebrow::after { content: ""; width: 28px; height: 1px; background: var(--neon-cyan); }
 .about-h {
   font-family: var(--f-display); font-weight: 700;
   font-size: var(--t-h1); line-height: 0.88;
@@ -923,14 +1082,18 @@ html, body { background: var(--bg-0); }
 }
 .about-h .stroke { -webkit-text-stroke: 1px var(--ink-0); color: transparent; font-style: italic; }
 .about-meta { font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-2); padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.08); display: inline-block; }
-.about-team { display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,0.1); }
+/* align-self: center — Block hugt seinen Inhalt und zentriert vertikal, damit
+   die obere Trennlinie direkt am Team-Eintrag sitzt statt frei zu schweben */
+.about-team { display: flex; flex-direction: column; align-self: center; border-top: 1px solid rgba(255,255,255,0.1); min-height: 0; width: 100%; }
 .team-row {
-  display: grid; grid-template-columns: 120px 1fr; gap: 28px;
+  display: grid; grid-template-columns: 140px 1fr; gap: 28px;
   padding: 28px 0; border-bottom: 1px solid rgba(255,255,255,0.1);
   align-items: center; transition: padding .25s ease;
+  /* Zeilen wachsen mit und verteilen sich über die volle Sektionshöhe */
+  flex: 1 1 auto; min-height: 0; max-height: 260px;
 }
 .team-row:hover { padding-left: 8px; }
-.team-photo { aspect-ratio: 4 / 5; width: 120px; background: var(--bg-2); position: relative; overflow: hidden; }
+.team-photo { aspect-ratio: 4 / 5; width: 140px; background: var(--bg-2); position: relative; overflow: hidden; }
 .team-photo::before { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 50% 40%, rgba(255,255,255,0.05), transparent 60%), linear-gradient(180deg, var(--bg-2), var(--bg-1)); }
 .team-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .tp-frame { position: absolute; inset: 8px; border: 1px solid var(--ink-3); transition: border-color .3s; z-index: 1; }
@@ -944,27 +1107,70 @@ html, body { background: var(--bg-0); }
 .t-links a { border-bottom: 1px solid var(--ink-3); padding-bottom: 1px; transition: color .2s, border-color .2s; cursor: pointer; }
 .t-links a:hover { color: var(--neon-cyan); border-color: var(--neon-cyan); }
 
-/* ===== Booking ===== */
+/* ===== Booking — kompaktes dunkles Band mit Neon-Akzenten ===== */
 .sv-booking {
-  background: var(--neon-cyan); color: var(--bg-0);
+  background: transparent; color: var(--ink-0);
   position: relative; overflow: hidden;
-  height: 100vh; height: 100svh; display: flex; align-items: stretch;
+  /* Titel startet oben wie bei den .vh-Sektionen (24px), unten großzügiger Abschluss */
+  padding: 24px 0 clamp(80px, 10vh, 130px);
+  border-top: 1px solid rgba(255,255,255,0.05);
 }
 .booking-inner {
   display: flex; flex-direction: column; align-items: center;
-  justify-content: center; text-align: center; gap: 32px;
+  justify-content: center; text-align: center; gap: 26px;
   width: 100%; max-width: var(--maxw); margin: 0 auto;
-  padding: 120px var(--pad-x) 48px;
+  padding: 0 var(--pad-x);
 }
-.sv-booking::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(90deg, transparent calc(100% - 1px), rgba(7,7,13,0.05) 100%); background-size: 80px 100%; pointer-events: none; }
-.sv-booking h2 { font-family: var(--f-display); font-weight: 700; font-size: var(--t-h1); line-height: 0.88; text-transform: uppercase; letter-spacing: -0.015em; position: relative; }
-.sv-booking p { font-size: 20px; color: rgba(7,7,13,0.7); max-width: 56ch; margin: 0 auto; position: relative; }
-.sv-booking .sv-btn { background: var(--bg-0); color: var(--neon-cyan); position: relative; }
-#app .sv-booking .sv-btn { color: var(--neon-cyan); }
-.sv-booking .sv-btn:hover { box-shadow: 0 14px 40px -10px rgba(0,0,0,0.6); }
+.sv-booking p { font-size: 18px; color: var(--ink-1); max-width: 56ch; margin: 0 auto; position: relative; }
+/* Set-Teaser: Karten (Bild + Buchen-Button), komplett klickbar */
+.bk-sets { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 10px; }
+.bk-set {
+  position: relative; width: 300px; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: var(--bg-2); border: 1px solid rgba(255,255,255,0.1);
+  transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
+}
+.bk-set:hover {
+  border-color: var(--neon-cyan); transform: translateY(-4px);
+  box-shadow: 0 14px 34px -14px rgba(0,240,255,0.45);
+}
+.bk-set-media { position: relative; aspect-ratio: 3 / 4; overflow: hidden; }
+.bk-set-img {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  transition: transform .6s cubic-bezier(.16,1,.3,1);
+}
+.bk-set:hover .bk-set-img { transform: scale(1.06); }
+.bk-set-scrim { position: absolute; inset: 0; background: linear-gradient(180deg, transparent 45%, rgba(7,7,13,0.8) 100%); }
+.bk-set-title {
+  position: absolute; left: 14px; right: 14px; bottom: 12px;
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--ink-0); text-align: left;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+/* Button-Fuß der Karte — gestylt wie .sv-btn */
+.bk-set-cta {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 14px 16px;
+  background: var(--neon-cyan); color: var(--bg-0);
+  font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.18em;
+  text-transform: uppercase; font-weight: 600;
+  transition: background .25s ease;
+}
+.bk-set:hover .bk-set-cta { background: #33f4ff; }
+/* CTA mit pulsierendem Neon-Glow (gleiche Animation wie der Hero-CTA) */
+.sv-booking .sv-btn {
+  position: relative; margin-top: 10px;
+  animation: btn-glow 2.8s ease-in-out infinite;
+}
+.sv-booking .sv-btn:hover {
+  animation: none;
+  box-shadow: 0 0 0 1px var(--neon-cyan), 0 0 40px rgba(0,240,255,0.55), 0 14px 60px -8px rgba(0,240,255,0.7);
+}
 
 /* ===== Footer ===== */
-.sv-footer { background: var(--bg-0); border-top: 1px solid rgba(255,255,255,0.06); padding: 80px var(--pad-x) 32px; }
+/* Footer bewusst in Vollschwarz — setzt sich vom schimmernden Rest ab */
+.sv-footer { background: #000; border-top: 1px solid rgba(255,255,255,0.06); padding: 80px var(--pad-x) 32px; }
 .impressum-grid { max-width: var(--maxw); margin: 0 auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; padding-bottom: 60px; border-bottom: 1px solid rgba(255,255,255,0.06); }
 .impressum-grid h4 { font-family: var(--f-mono); font-size: 11px; letter-spacing: 0.22em; color: var(--ink-2); text-transform: uppercase; margin-bottom: 20px; }
 .impressum-grid p, .impressum-grid li { font-size: 14px; line-height: 1.7; color: var(--ink-1); }
@@ -991,26 +1197,39 @@ html, body { background: var(--bg-0); }
   .sv-nav.scrolled { padding-top: 14px; padding-bottom: 14px; }
   .sv-nav .sv-logo { height: 26px; }
   .sv-nav.scrolled .sv-logo { height: 22px; }
-  /* Fullscreen menu overlay — always rendered so open/close can animate */
+  /* Seiten-Panel: schiebt von rechts herein und deckt die halbe Breite ab,
+     die linke Hälfte wird vom Overlay abgedunkelt */
   .sv-nav-links {
-    display: flex; position: fixed; inset: 0;
+    display: flex; position: fixed; top: 0; right: 0; bottom: 0; left: auto;
+    width: 50%; min-width: 300px;
     flex-direction: column; align-items: flex-start; justify-content: center;
     gap: 0; padding: 100px var(--pad-x) 40px;
-    background: rgba(7,7,13,0.97);
+    background: rgba(10,10,18,0.98);
+    border-left: 1px solid rgba(255,255,255,0.08);
     z-index: 101;
+    visibility: hidden; pointer-events: none;
+    transform: translateX(100%);
+    transition: transform .32s cubic-bezier(.16,1,.3,1), visibility 0s linear .32s;
+  }
+  body.menu-open .sv-nav-links {
+    visibility: visible; pointer-events: auto; transform: translateX(0);
+    transition: transform .32s cubic-bezier(.16,1,.3,1);
+  }
+  .sv-menu-overlay {
+    display: block; position: fixed; inset: 0; z-index: 99;
+    background: rgba(0,0,0,0.55); cursor: pointer;
     opacity: 0; visibility: hidden; pointer-events: none;
-    transform: translateY(-10px);
-    transition: opacity .28s ease, transform .28s ease, visibility 0s linear .28s;
+    transition: opacity .3s ease, visibility 0s linear .3s;
+  }
+  body.menu-open .sv-menu-overlay {
+    opacity: 1; visibility: visible; pointer-events: auto;
+    transition: opacity .3s ease;
   }
   .sv-nav-right { display: none; }
-  .sv-burger { display: inline-flex; order: 3; margin-right: 0; }
+  .sv-burger { display: inline-flex; order: 3; margin-right: 0; position: relative; z-index: 102; }
   body.menu-open .sv-burger span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
   body.menu-open .sv-burger span:nth-child(2) { opacity: 0; }
   body.menu-open .sv-burger span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
-  body.menu-open .sv-nav-links {
-    opacity: 1; visibility: visible; pointer-events: auto; transform: none;
-    transition: opacity .28s ease, transform .28s ease;
-  }
   .sv-nav-links a {
     font-family: var(--f-display); font-weight: 700; font-size: 24px;
     letter-spacing: 0.01em; text-transform: uppercase; color: var(--ink-0);
@@ -1023,14 +1242,15 @@ html, body { background: var(--bg-0); }
   }
   .vh { height: 100svh; padding-top: 16px; padding-bottom: 16px; overflow: hidden; }
   .vh-inner { padding: 0 var(--pad-x); gap: 16px; }
-  .section-head { flex-direction: column; align-items: flex-start; gap: 14px; }
-  .section-head .s-meta { text-align: left; }
+  .section-head { gap: 14px; }
   .sv-hero { height: auto; min-height: 92vh; min-height: 92svh; }
   .hero-readout { top: 28px; right: var(--pad-x); }
   .hero-bottom-left { bottom: 48px; left: var(--pad-x); right: var(--pad-x); gap: 22px; }
   .hero-corners::before, .hero-corners::after { width: 28px; height: 28px; }
   .hero-corners::before { top: 92px; }
   .scroll-cue { display: none; }
+  /* Galerie-Pfeile mobil ausblenden — navigiert wird über die Thumbnail-Leiste */
+  .sdm-nav { display: none; }
   .news-row { flex-direction: column; gap: 10px; }
   .news-card, .news-row.has-expanded .news-card { flex: 1 1 auto; min-width: 0; min-height: 0; width: 100%; }
   .news-row .news-card.expanded { flex-grow: 1; }
@@ -1041,28 +1261,45 @@ html, body { background: var(--bg-0); }
   /* Stacked cards need real height — drop the desktop grid cap and let the
      section grow so each frame renders at its 16/10 ratio (≈ news-card size) */
   .sv-sets.vh { height: auto; min-height: 100svh; padding-bottom: 96px; }
-  .sets-grid { grid-template-columns: 1fr; gap: 44px; max-height: none; flex: 0 0 auto; grid-auto-rows: auto; }
-  /* Flat cinematic frame — about ⅔ of the news-card image height */
-  .sc-frame { aspect-ratio: 12 / 5; max-height: 30vh; }
+  .sets-grid { grid-template-columns: minmax(0, 1fr); gap: 44px; max-height: none; flex: 0 0 auto; grid-auto-rows: auto; }
+  /* Flat cinematic frame — Breite führt, sonst schiebt max-height den
+     Frame über den Viewport hinaus */
+  .sc-frame { aspect-ratio: 12 / 5; width: 100%; max-height: none; }
   .sv-set-detail .vh-inner { padding: 0; }
   /* Fixed 100svh squeezes the media row once the text column grows — let the
      section expand instead so the image keeps its full width */
   .sv-set-detail.vh { height: auto; min-height: 100svh; padding-bottom: 48px; }
-  .set-detail, .set-detail.reverse { grid-template-columns: 1fr 1fr; gap: 40px; padding: 0 var(--pad-x); flex: 0 0 auto; }
-  .set-detail.reverse .sdm { order: 0; }
-  .sdm { min-height: 0; width: 100%; aspect-ratio: 4 / 3; max-height: 56vh; }
+  /* minmax(0,1fr) statt 1fr: 1fr hat implizit min-width:auto — Inhalte können
+     die Spalte (und damit die Sektion) über den Viewport hinausdrücken.
+     align-items: start statt stretch — sonst streckt eine lange Text-Spalte
+     das Bild in die Höhe und der Crop zoomt extrem hinein */
+  .set-detail, .set-detail.reverse { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; padding: 0 var(--pad-x); flex: 0 0 auto; align-items: start; }
+  .sdm-wrap, .set-detail.reverse .sdm-wrap { order: 0; gap: 10px; width: 100%; max-width: 100%; max-height: none; }
+  .sdm-thumbs { max-width: 100%; }
+  .sdm-thumb { width: 64px; height: 64px; }
+  .sdm { min-height: 0; width: 100%; aspect-ratio: 4 / 3; max-height: none; flex: 0 0 auto; }
+  /* Bilder ohne Zoom zeigen — bei abweichender Ratio entstehen Balken auf bg-2 */
+  .sdm-img { background-size: contain; background-repeat: no-repeat; background-position: center; }
+  .sdm:hover .sdm-img { transform: none; }
   .annot { font-size: 9px; padding: 4px 8px; letter-spacing: 0.12em; }
   .annot-corner { width: 16px; height: 16px; }
   .sdc { min-height: auto; padding-top: 8px; padding-bottom: 0; gap: 20px; }
-  .set-num-bg { display: none; }
-  .sdh h3 { font-size: clamp(38px, 9vw, 56px); }
+  /* Outline-Zahlen sichtbar lassen, aber kleiner und bündig im Viewport */
+  .set-num-bg, .set-num-glow { top: 0; right: 0; font-size: clamp(110px, 26vw, 220px); }
+  .sdh h3 { font-size: clamp(38px, 9vw, 56px); overflow-wrap: break-word; }
   .sd-kv { grid-template-columns: 1fr; gap: 2px; }
-  .location-grid { grid-template-columns: 1fr; gap: 24px; }
+  /* Sektion wächst mit dem gestapelten Inhalt; Info-Blöcke untereinander */
+  .sv-location.vh { height: auto; min-height: 100svh; }
+  .location-grid { gap: 24px; }
+  .location-info { grid-template-columns: 1fr; gap: 22px; }
+  .map-wrap { min-height: 340px; }
+  /* Gestapelt wächst die Sektion mit dem Inhalt statt hart bei 100svh zu clippen */
+  .sv-about.vh { height: auto; min-height: 100svh; }
   .about-layout { grid-template-columns: 1fr; gap: 40px; }
+  .team-row { flex: 0 0 auto; max-height: none; }
   .about-h { font-size: clamp(44px, 11vw, 84px); margin-bottom: 24px; }
   .team-row { grid-template-columns: 96px 1fr; gap: 18px; padding: 20px 0; }
   .team-photo { width: 96px; }
-  .sv-booking h2 { font-size: clamp(40px, 10vw, 64px); }
   .sv-booking p { font-size: 16px; }
   .sv-footer { padding: 64px var(--pad-x) 48px; }
   .impressum-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
@@ -1076,14 +1313,17 @@ html, body { background: var(--bg-0); }
   .hero-bottom-left { bottom: 36px; gap: 18px; }
   .hero-bottom-left .sv-btn { width: 100%; justify-content: space-between; padding: 18px 22px; }
   .hero-eyebrow { font-size: 10px; letter-spacing: 0.18em; }
-  .set-detail, .set-detail.reverse { grid-template-columns: 1fr; }
+  .set-detail, .set-detail.reverse { grid-template-columns: minmax(0, 1fr); }
   .about-h { font-size: clamp(52px, 14vw, 88px); }
   .team-row { grid-template-columns: 1fr; gap: 14px; padding: 24px 0; }
   .team-photo { width: 100%; aspect-ratio: 16 / 11; }
   .team-row:hover { padding-left: 0; }
   .sd-cta-row { flex-direction: column; align-items: stretch; gap: 14px; }
   .sd-cta-row .sv-btn { width: 100%; justify-content: space-between; }
-  .booking-inner { padding: 80px var(--pad-x); gap: 22px; }
+  .booking-inner { padding: 0 var(--pad-x); gap: 22px; }
+  /* Untertitel mobil ausblenden, Karten volle Viewport-Breite für große Bilder */
+  .sv-booking p { display: none; }
+  .bk-set { width: 100%; max-width: none; }
   .sv-booking .sv-btn { width: 100%; max-width: 360px; justify-content: space-between; }
   .eyebrow { font-size: 10px; letter-spacing: 0.18em; }
 }
@@ -1095,4 +1335,5 @@ html, body { background: var(--bg-0); }
 }
 @media (prefers-reduced-motion: reduce) {
   .news-card, .news-card *, .sdm-img, .hero-fallback, .hero-bottom-left .sv-btn { animation: none !important; transition: none !important; }
+  #app::before, #app::after, .sv-booking .sv-btn { animation: none !important; }
 }

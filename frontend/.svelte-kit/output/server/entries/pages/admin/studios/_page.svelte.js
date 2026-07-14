@@ -1,5 +1,6 @@
-import { i as head, e as escape_html, d as ensure_array_like, f as attr } from "../../../../chunks/renderer.js";
+import { j as head, e as escape_html, c as ensure_array_like, d as attr } from "../../../../chunks/renderer.js";
 import "../../../../chunks/client.js";
+import { c as cldUrl, C as CLD } from "../../../../chunks/cloudinary.js";
 import "animejs";
 function _page($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
@@ -19,12 +20,12 @@ function _page($$renderer, $$props) {
         $$renderer3.push(`<div class="admin-card rounded-xl p-4 flex items-center gap-4">`);
         if (item.titleImg?.url) {
           $$renderer3.push("<!--[0-->");
-          $$renderer3.push(`<img${attr("src", item.titleImg.url)} class="w-16 h-16 object-cover rounded-lg shrink-0"${attr("alt", item.title?.de)}/>`);
+          $$renderer3.push(`<img${attr("src", cldUrl(item.titleImg.url, CLD.thumb))} loading="lazy" class="w-16 h-16 object-cover rounded-lg shrink-0"${attr("alt", item.title?.de)}/>`);
         } else {
           $$renderer3.push("<!--[-1-->");
           $$renderer3.push(`<div class="admin-thumb-fallback w-16 h-16 rounded-lg shrink-0 flex items-center justify-center"><i class="bi bi-camera text-xl"></i></div>`);
         }
-        $$renderer3.push(`<!--]--> <div class="flex-1 min-w-0"><div class="font-medium truncate" style="color: var(--ink-0)">${escape_html(item.title?.de || item.title?.en)}</div> <div class="admin-page-sub mt-0.5" style="letter-spacing: 0.04em;">ID: ${escape_html(item.id)} · ${escape_html(item.images?.length || 0)} Bilder</div></div> <div class="flex gap-2 shrink-0"><button class="btn-icon admin-icon-btn edit"><i class="bi bi-pencil"></i></button> <button class="btn-icon admin-icon-btn danger"><i class="bi bi-trash"></i></button></div></div>`);
+        $$renderer3.push(`<!--]--> <div class="flex-1 min-w-0"><div class="font-medium truncate" style="color: var(--ink-0)">${escape_html(item.title?.de || item.title?.en)}</div> <div class="admin-page-sub mt-0.5" style="letter-spacing: 0.04em;">${escape_html(item.images?.length || 0)} Bilder</div></div> <div class="flex gap-2 shrink-0"><button class="btn-icon admin-icon-btn edit" aria-label="Bearbeiten"><i class="bi bi-pencil"></i></button> <button class="btn-icon admin-icon-btn danger" aria-label="Löschen"><i class="bi bi-trash"></i></button></div></div>`);
       }
       $$renderer3.push(`<!--]--> `);
       {

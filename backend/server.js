@@ -38,6 +38,10 @@ app.use((err, req, res, next) => {
     if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(413).json({ Error: 'Datei zu groß. Maximum: 10 MB für Bilder, 50 MB für Hero-Medien.' });
     }
+    // Multer meldet zu viele Dateien pro Feld als LIMIT_UNEXPECTED_FILE
+    if (err.code === 'LIMIT_UNEXPECTED_FILE' || err.code === 'LIMIT_FILE_COUNT') {
+        return res.status(400).json({ Error: 'Zu viele Dateien hochgeladen. Maximal 40 Bilder pro Upload.' });
+    }
     // Cloudinary rejects files larger than the plan limit after upload starts
     if (err?.http_code === 400 && err?.message?.includes('File size too large')) {
         return res.status(413).json({ Error: 'Datei zu groß für Cloudinary. Maximale Dateigröße: 10 MB.' });

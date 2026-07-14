@@ -26,7 +26,7 @@
           {#each value[lang] as role, i}
             <span class="inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full {lang === 'de' ? 'admin-badge-de' : 'admin-badge-en'}">
               {role}
-              <button type="button" onclick={() => removeRole(lang, i)} class="hover:opacity-70 ml-0.5">
+              <button type="button" onclick={() => removeRole(lang, i)} class="hover:opacity-70 ml-0.5" aria-label="Rolle entfernen">
                 <i class="bi bi-x"></i>
               </button>
             </span>
@@ -40,7 +40,7 @@
             placeholder={lang === 'de' ? 'Rolle auf Deutsch…' : 'Role in English…'}
             onkeydown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addRole(lang) } }}
           />
-          <button type="button" onclick={() => addRole(lang)} class="btn-secondary px-3">
+          <button type="button" onclick={() => addRole(lang)} class="btn-secondary px-3" aria-label="Rolle hinzufügen">
             <i class="bi bi-plus"></i>
           </button>
         </div>

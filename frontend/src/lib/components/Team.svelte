@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte'
-  import axios from 'axios'
+  import { swrGet } from '$lib/utils/swr'
   import { useLocale } from '$lib/i18n/index.svelte'
   import { reveal } from '$lib/actions/reveal'
 
@@ -17,11 +17,10 @@
 
   const safeUrl = (url: string) => /^https?:\/\//i.test(url) ? url : ''
 
-  onMount(async () => {
-    try {
-      const { data } = await axios.get('/api/team')
-      members = data
-    } catch { members = [] }
+  onMount(() => {
+    swrGet<Member[]>('/api/team', (data) => {
+      members = Array.isArray(data) ? data : []
+    })
   })
 </script>
 
@@ -31,6 +30,7 @@
       <!-- Left: headline -->
       <div class="about-left">
         <div class="eyebrow">{t.aboutDesign.eyebrow}</div>
+        <div class="about-rule"></div>
         <h2 class="about-h">
           {t.aboutDesign.h1}<br>
           <span class="stroke">{t.aboutDesign.h2}</span><br>

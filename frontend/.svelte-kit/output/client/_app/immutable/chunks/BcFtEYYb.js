@@ -1,0 +1,1 @@
+const n="/upload/";function _(t,o){if(!t)return null;if(!t.includes("res.cloudinary.com"))return t;const c=t.indexOf(n);if(c===-1)return t;const i=c+n.length;return t.slice(0,i)+o+"/"+t.slice(i)}const a={thumb:"w_160,h_160,c_fill,q_auto,f_auto",card:"w_1000,c_limit,q_auto,f_auto",main:"w_1200,c_limit,q_auto,f_auto"};export{a as C,_ as c};

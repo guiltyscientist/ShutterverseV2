@@ -11,7 +11,7 @@
   >
     <div class="admin-modal-header flex items-center justify-between px-6 py-4 shrink-0">
       <h2 class="admin-modal-title">{title}</h2>
-      <button onclick={onclose} class="admin-modal-close">
+      <button onclick={onclose} class="admin-modal-close" aria-label="Schließen">
         <i class="bi bi-x-lg"></i>
       </button>
     </div>

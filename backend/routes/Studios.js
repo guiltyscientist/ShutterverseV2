@@ -6,17 +6,49 @@ import authenticate from '../middleware/authenticate.js';
 
 const router = Router();
 
+// Muss mit MAX_GALLERY_FILES im Admin-Frontend (admin/studios) übereinstimmen
+const MAX_GALLERY_FILES = 40;
+// Muss mit MAX_TAGS im Admin-Frontend (admin/studios) übereinstimmen
+const MAX_TAGS = 10;
+
+const ALLOWED_URL_PROTOCOLS = /^https?:\/\//i;
+
+function sanitizeTags(raw) {
+    let parsed;
+    try {
+        parsed = Array.isArray(raw) ? raw : JSON.parse(raw);
+    } catch {
+        parsed = [];
+    }
+    if (!Array.isArray(parsed)) return [];
+    return parsed
+        .filter(tag => typeof tag === 'string')
+        .map(tag => tag.trim().slice(0, 50))
+        .filter(Boolean)
+        .slice(0, MAX_TAGS);
+}
+
+function sanitizeBookingUrl(raw) {
+    if (typeof raw !== 'string') return null;
+    const url = raw.trim();
+    // Nur http/https zulassen — blockt javascript:, data: usw.
+    return ALLOWED_URL_PROTOCOLS.test(url) ? url.slice(0, 500) : null;
+}
+
 function parseStudioFields(body) {
     return {
         title: { de: body.title_de, en: body.title_en || null },
         description: { de: body.description_de || null, en: body.description_en || null },
         equipment: { de: body.equipment_de || null, en: body.equipment_en || null },
+        inspiredBy: sanitizeTags(body.inspiredBy),
+        bookingUrl: sanitizeBookingUrl(body.bookingUrl),
+        isNew: body.isNew === 'true',
     };
 }
 
 router.post('/', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
     { name: 'titleImg', maxCount: 1 },
-    { name: 'images', maxCount: 20 }
+    { name: 'images', maxCount: MAX_GALLERY_FILES }
 ]), async (req, res) => {
 
     const rollback = async () => {
@@ -62,12 +94,13 @@ router.get('/', async (req, res) => {
 
 router.get('/title-images', async (req, res) => {
     try {
-        const studios = await Studio.find({}, 'id title titleImg');
+        const studios = await Studio.find({}, 'id title titleImg bookingUrl');
         res.json({
             studios: studios.map(s => ({
                 id: s.id,
                 title: s.title,
-                titleImg: s.titleImg?.url || null
+                titleImg: s.titleImg?.url || null,
+                bookingUrl: s.bookingUrl || null
             }))
         });
     } catch (error) {
@@ -78,7 +111,7 @@ router.get('/title-images', async (req, res) => {
 
 router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
     { name: 'titleImg', maxCount: 1 },
-    { name: 'images', maxCount: 20 }
+    { name: 'images', maxCount: MAX_GALLERY_FILES }
 ]), async (req, res) => {
 
     const rollback = async () => {
@@ -91,6 +124,9 @@ router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
     };
 
     try {
+        // Neues Titelbild hat Vorrang vor dem Entfernen-Flag
+        const removeTitleImg = !req.files['titleImg'] && req.body.removeTitleImg === 'true';
+
         const update = {
             ...parseStudioFields(req.body),
             ...(req.files['titleImg'] && {
@@ -98,6 +134,9 @@ router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
                     url: req.files['titleImg'][0].path,
                     publicId: req.files['titleImg'][0].filename
                 }
+            }),
+            ...(removeTitleImg && {
+                titleImg: { url: null, publicId: null }
             }),
             ...(req.files['images'] && {
                 $push: {
@@ -118,7 +157,7 @@ router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/STUDIOS').fields([
             return res.status(404).json({ Error: 'Studio was not found' });
         }
 
-        if (req.files['titleImg'] && oldStudio.titleImg?.publicId) {
+        if ((req.files['titleImg'] || removeTitleImg) && oldStudio.titleImg?.publicId) {
             await cloudinary.uploader.destroy(oldStudio.titleImg.publicId);
         }
 

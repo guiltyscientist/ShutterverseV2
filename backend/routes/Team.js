@@ -80,6 +80,9 @@ router.get('/', async (req, res) => {
 
 router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/MEMBER').single('profilImg'), async (req, res) => {
     try {
+        // Neues Profilbild hat Vorrang vor dem Entfernen-Flag
+        const removeProfilImg = !req.file && req.body.removeProfilImg === 'true';
+
         const update = {
             ...parseMemberFields(req.body),
             ...(req.file && {
@@ -87,6 +90,9 @@ router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/MEMBER').single('profi
                     url: req.file.path,
                     publicId: req.file.filename
                 }
+            }),
+            ...(removeProfilImg && {
+                profilImg: { url: null, publicId: null }
             })
         }
 
@@ -99,7 +105,7 @@ router.patch('/:id', authenticate, uploadTo('SHUTTERVERSE/MEMBER').single('profi
             return res.status(404).json({ Error: 'Team member was not found' });
         }
 
-        if (req.file && oldMember.profilImg?.publicId) {
+        if ((req.file || removeProfilImg) && oldMember.profilImg?.publicId) {
             await cloudinary.uploader.destroy(oldMember.profilImg.publicId);
         }
 

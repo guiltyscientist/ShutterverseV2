@@ -16,6 +16,8 @@ const uploadTo = (folder) => {
             folder: folder,
             allowed_formats: ['jpg', 'png', 'webp'],
             transformation: [
+                // Größer als 2560px braucht keine Ansicht — spart Speicher und Ladezeit
+                { width: 2560, crop: 'limit' },
                 { quality: 'auto' },
                 { fetch_format: 'auto' }
             ]

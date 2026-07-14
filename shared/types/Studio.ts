@@ -7,4 +7,7 @@ export interface IStudio {
   equipment: string | null
   titleImg: IImage
   images: IImage[]
+  inspiredBy: string[]
+  bookingUrl: string | null
+  isNew: boolean
 }

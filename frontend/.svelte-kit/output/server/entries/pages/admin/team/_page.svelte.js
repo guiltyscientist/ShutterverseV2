@@ -1,4 +1,4 @@
-import { i as head, e as escape_html, d as ensure_array_like, f as attr } from "../../../../chunks/renderer.js";
+import { j as head, e as escape_html, c as ensure_array_like, d as attr } from "../../../../chunks/renderer.js";
 import "../../../../chunks/client.js";
 import "animejs";
 function _page($$renderer, $$props) {
@@ -24,7 +24,7 @@ function _page($$renderer, $$props) {
           $$renderer3.push("<!--[-1-->");
           $$renderer3.push(`<div class="admin-thumb-fallback w-12 h-12 rounded-full shrink-0 flex items-center justify-center"><i class="bi bi-person"></i></div>`);
         }
-        $$renderer3.push(`<!--]--> <div class="flex-1 min-w-0"><div class="font-medium" style="color: var(--ink-0)">${escape_html(item.firstName)} ${escape_html(item.lastName)}</div> <div class="admin-page-sub mt-0.5 truncate" style="letter-spacing: 0.04em;">${escape_html(item.roles?.de?.join(", ") || "–")}</div></div> <div class="flex gap-2 shrink-0"><button class="btn-icon admin-icon-btn edit"><i class="bi bi-pencil"></i></button> <button class="btn-icon admin-icon-btn danger"><i class="bi bi-trash"></i></button></div></div>`);
+        $$renderer3.push(`<!--]--> <div class="flex-1 min-w-0"><div class="font-medium" style="color: var(--ink-0)">${escape_html(item.firstName)} ${escape_html(item.lastName)}</div> <div class="admin-page-sub mt-0.5 truncate" style="letter-spacing: 0.04em;">${escape_html(item.roles?.de?.join(", ") || "–")}</div></div> <div class="flex gap-2 shrink-0"><button class="btn-icon admin-icon-btn edit" aria-label="Bearbeiten"><i class="bi bi-pencil"></i></button> <button class="btn-icon admin-icon-btn danger" aria-label="Löschen"><i class="bi bi-trash"></i></button></div></div>`);
       }
       $$renderer3.push(`<!--]--> `);
       {

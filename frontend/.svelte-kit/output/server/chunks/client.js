@@ -1,33 +1,5 @@
 import axios from "axios";
-import "clsx";
-let accessToken = null;
-const auth = {
-  get isAuthenticated() {
-    return accessToken !== null;
-  },
-  getToken() {
-    return accessToken;
-  },
-  async login(username, password) {
-    const { data } = await axios.post("/api/auth/login", { username, password }, { withCredentials: true });
-    accessToken = data.accessToken;
-  },
-  async logout() {
-    await axios.post("/api/auth/logout", {}, { withCredentials: true }).catch(() => {
-    });
-    accessToken = null;
-  },
-  async refreshToken() {
-    try {
-      const { data } = await axios.post("/api/auth/refresh", {}, { withCredentials: true });
-      accessToken = data.accessToken;
-      return true;
-    } catch {
-      accessToken = null;
-      return false;
-    }
-  }
-};
+import { a as auth } from "./auth.svelte.js";
 const apiClient = axios.create({ withCredentials: true });
 apiClient.interceptors.request.use((config) => {
   const token = auth.getToken();
