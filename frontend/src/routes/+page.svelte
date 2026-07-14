@@ -85,7 +85,13 @@
   <NavBar />
   <Home />
   <News />
-  <Studios />
+  <!-- Sticky-Karten-Stapel: Set-Übersicht → Studio-Details.
+       Der Wrapper begrenzt den Stapel: ab Location scrollt alles normal weiter. -->
+  <div class="stack-zone">
+    <Studios />
+    <!-- Verweilzone, in der die letzte Karte (Studio 3) angedockt bleibt -->
+    <div class="stack-dwell" aria-hidden="true"></div>
+  </div>
   <Location />
   <Team />
 

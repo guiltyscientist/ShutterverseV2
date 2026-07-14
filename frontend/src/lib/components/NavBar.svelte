@@ -10,6 +10,13 @@
 
   const sectionIds = ['top', 'news', 'sets', 'location', 'about', 'booking']
 
+  // Die Stapel-Karten docken unter der Navbar an — ihre echte Höhe messen,
+  // statt sie im CSS zu schätzen (sie schrumpft beim Scrollen).
+  function syncNavHeight() {
+    const nav = document.querySelector('.sv-nav') as HTMLElement | null
+    if (nav) document.documentElement.style.setProperty('--nav-h', `${nav.offsetHeight}px`)
+  }
+
   function onScroll() {
     scrolled = window.scrollY > 40
     const y = window.scrollY + window.innerHeight * 0.3
@@ -31,8 +38,18 @@
 
   onMount(() => {
     window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', syncNavHeight)
     onScroll()
-    return () => window.removeEventListener('scroll', onScroll)
+    // Nach dem Umschalten auf den gescrollten (kleineren) Zustand neu messen
+    const ro = new ResizeObserver(syncNavHeight)
+    const nav = document.querySelector('.sv-nav')
+    if (nav) ro.observe(nav)
+    syncNavHeight()
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', syncNavHeight)
+      ro.disconnect()
+    }
   })
 </script>
 

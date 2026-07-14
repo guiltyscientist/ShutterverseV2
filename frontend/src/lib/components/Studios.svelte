@@ -119,7 +119,7 @@
   </div>
 </section>
 
-<!-- Set Detail sections -->
+<!-- Set Detail sections — part of the sticky card stack (see .stack-zone in +page) -->
 {#each studios as studio, i}
   {@const gallery = galleryOf(studio)}
   {@const rawImg = activeImg[studio.id] ?? getImg(studio)}

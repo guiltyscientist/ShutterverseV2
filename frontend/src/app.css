@@ -149,12 +149,20 @@ html, body { background: var(--bg-0); }
   --t-mono: 12px;
   --pad-x: clamp(24px, 5vw, 96px);
   --maxw: 1480px;
+  /* Wird von NavBar.svelte mit der tatsächlichen Navbar-Höhe überschrieben
+     (sie schrumpft beim Scrollen). Dient als Innenabstand der Stapel-Karten. */
+  --nav-h: 63px;
+  /* Gemeinsamer Hintergrund für Seite UND deckende Stapel-Karten — identisch,
+     damit an den Kartenkanten kein Bruch sichtbar wird. */
+  --page-bg:
+    radial-gradient(circle at 30% 40%, #2a1a4a 0%, transparent 50%),
+    radial-gradient(circle at 70% 60%, #0a3a5a 0%, transparent 50%),
+    radial-gradient(ellipse 44% 36% at 50% 82%, #4a0e2a 0%, transparent 68%),
+    radial-gradient(ellipse 30% 24% at 52% 84%, rgba(255,46,108,0.10), transparent 70%),
+    linear-gradient(135deg, #07070d, #0c0c16);
 }
 
 #app {
-  /* Hintergrund liegt auf dem fixen Gradient-Layer (::before), body liefert bg-0 als Basis.
-     isolation erzeugt den Stacking-Kontext, damit ::before (z-index -1) ÜBER dem
-     body-Hintergrund liegt statt dahinter zu verschwinden. */
   position: relative;
   isolation: isolate;
   color: var(--ink-0);
@@ -162,39 +170,34 @@ html, body { background: var(--bg-0); }
   font-size: var(--t-body);
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
-  overflow-x: hidden;
+  /* clip statt hidden: hidden erzeugt einen Scroll-Container und würde
+     position: sticky bei den Stapel-Karten aushebeln. */
+  overflow-x: clip;
 }
-/* Site-weiter Hero-Gradient als fixe Ebene hinter allen Sektionen.
-   Basis (Violett/Blau) atmet nur ganz leicht — das Schimmern kommt vom
-   separat driftenden Magenta-Layer (::after). */
+/* Seitenhintergrund als fixe, schimmernde Ebene hinter allen transparenten
+   Sektionen. Die deckenden Stapel-Karten bringen ihren Hintergrund selbst mit —
+   ihre Kanten sind durch Schlagschatten bzw. die Location-Farbfläche bewusst
+   als Kanten gestaltet, müssen also nicht nahtlos anschließen. */
 #app::before {
   content: "";
-  position: fixed;
-  inset: -12vh -12vw;
-  z-index: -1;
-  pointer-events: none;
+  position: fixed; inset: -12vh -12vw; z-index: -1; pointer-events: none;
   background:
     radial-gradient(circle at 30% 40%, #2a1a4a 0%, transparent 50%),
     radial-gradient(circle at 70% 60%, #0a3a5a 0%, transparent 50%),
     linear-gradient(135deg, #07070d, #0c0c16);
   animation: bg-breathe 34s ease-in-out infinite alternate;
 }
-@keyframes bg-breathe {
-  0%   { transform: scale(1); }
-  100% { transform: scale(1.07); }
-}
-/* Magenta-Schimmer: wandert langsam durch den unteren Bildbereich
-   und pulsiert dabei in der Intensität */
 #app::after {
   content: "";
-  position: fixed;
-  inset: -20vh -20vw;
-  z-index: -1;
-  pointer-events: none;
+  position: fixed; inset: -20vh -20vw; z-index: -1; pointer-events: none;
   background:
     radial-gradient(ellipse 44% 36% at 50% 82%, #4a0e2a 0%, transparent 68%),
     radial-gradient(ellipse 30% 24% at 52% 84%, rgba(255,46,108,0.10), transparent 70%);
   animation: magenta-drift 19s ease-in-out infinite alternate;
+}
+@keyframes bg-breathe {
+  0%   { transform: scale(1); }
+  100% { transform: scale(1.07); }
 }
 @keyframes magenta-drift {
   0%   { transform: translate3d(-7%, 2%, 0) scale(1);    opacity: 0.55; }
@@ -673,7 +676,8 @@ html, body { background: var(--bg-0); }
 }
 
 /* ===== Sets Overview ===== */
-.sv-sets { background: transparent; }
+/* Unterste Karte des Stapels — Studio 1 schiebt sich darüber */
+.sv-sets { background: transparent; position: sticky; top: 0; }
 .sv-sets .vh-inner { gap: 20px; }
 /* Grid fills remaining height so cards never overflow the viewport */
 .sets-grid {
@@ -778,10 +782,43 @@ html, body { background: var(--bg-0); }
 .sc-bottom { display: flex; align-items: end; justify-content: space-between; gap: 12px; }
 
 /* ===== Set Detail ===== */
-.sv-set-detail { background: transparent; }
+/* ===== Set-Details als übereinander schiebende Stapel-Karten =====
+   Jede Karte bleibt oben kleben, die nächste schiebt sich darüber. Der Stapel
+   ist auf .set-stack begrenzt, danach scrollen die Karten normal weg.
+   Karten müssen deckend sein — daher trägt jede den Schimmer-Verlauf selbst. */
+.sv-set-detail {
+  position: sticky;
+  top: 0;
+  box-shadow: 0 -30px 60px -20px rgba(0, 0, 0, 0.75);
+}
+/* Deckender Karten-Hintergrund. Bewusst OHNE background-attachment: fixed —
+   Safari rendert das auf klebenden Elementen unsauber (Flackern beim Scrollen).
+   Die Karte ist genau viewport-hoch, der Verlauf sitzt dadurch praktisch gleich. */
+.sv-set-detail {
+  background-image: var(--page-bg);
+  background-size: cover;
+  background-position: center;
+}
 /* Section overhangs viewport bottom by ~navH (≈62px) due to scroll offset.
    padding-bottom = visual_gap_top (24px) + navH (62px) = 86px for equal spacing. */
-.sv-set-detail.vh { padding-bottom: 100px; }
+/* Karten füllen den vollen Viewport und docken bei top: 0 an — sie rutschen also
+   unter die (transparente) Navbar, wodurch dort kein Spalt entstehen kann.
+   Nur der INHALT wird per padding unter die Navbar gerückt. */
+.stack-zone .vh {
+  height: 100svh;
+  padding-top: calc(var(--nav-h) + 24px);
+}
+/* Verweilzone pro Karte: margin-bottom schiebt die NÄCHSTE Karte später in den
+   Fluss — die aktuelle bleibt derweil angedockt und wird nicht sofort überdeckt.
+   Der Leerraum liegt hinter der klebenden Karte und ist nie sichtbar. */
+.sv-sets, .sv-set-detail { margin-bottom: 30vh; }
+/* Die letzte Karte (Studio 3) bekommt ihre Verweilzone aus dem Spacer — sonst
+   käme ihr eigener margin-bottom obendrauf und Location schlösse zu spät an. */
+.stack-zone section:last-of-type { margin-bottom: 0; }
+/* Verweilzone der letzten Karte: echtes In-Flow-Element (padding am Container
+   würde den Sticky-Bereich NICHT verlängern). Location schließt direkt daran an. */
+.stack-dwell { height: 30vh; }
+.sv-set-detail.vh { padding-bottom: 24px; }
 .sv-set-detail .vh-inner {
   justify-content: flex-start;
   max-width: none; padding: 0; margin: 0; width: 100%; gap: 0;
@@ -977,13 +1014,18 @@ html, body { background: var(--bg-0); }
 .sd-price .v { font-family: var(--f-display); font-weight: 700; font-size: 28px; color: var(--ink-0); }
 
 /* ===== Location ===== */
-/* Weiche Ein-/Ausblendung statt harter Kanten an den Sektionsgrenzen */
+/* Nicht Teil des Karten-Stapels, sondern eine bewusste, ruhige Farbfläche.
+   Dadurch wird die Kante zum letzten Studio zu einem gestalteten Absatz statt
+   zu einem Artefakt. Ab About geht der Seitenverlauf normal weiter. */
 .sv-location {
+  /* Oben deckend (klare Kante zu Studio 3), nach unten transparent auslaufend,
+     damit es weich in den Seitenverlauf von About übergeht.
+     Kein border-bottom — eine harte Linie würde die Ausblendung zunichtemachen. */
   background: linear-gradient(180deg,
-    transparent 0%,
-    rgba(12,12,22,0.55) 14%,
-    rgba(12,12,22,0.55) 86%,
+    var(--bg-1) 0%,
+    var(--bg-1) 58%,
     transparent 100%);
+  border-top: 1px solid rgba(255,255,255,0.06);
 }
 /* Info-Reihe oben, Karte darunter über volle Breite — füllt die Sektionshöhe */
 .location-grid { display: flex; flex-direction: column; gap: 32px; flex: 1; min-height: 0; }
@@ -1063,6 +1105,10 @@ html, body { background: var(--bg-0); }
 
 /* ===== About + Team ===== */
 .sv-about { background: transparent; }
+/* Die fixe Navbar überdeckt den oberen Sektionsrand und der Anker-Sprung
+   versetzt die Sektion zusätzlich nach unten. Extra Padding unten hebt den
+   zentrierten Inhalt an, damit er optisch mittig sitzt. */
+.sv-about.vh { padding-bottom: 170px; }
 /* Sektion bleibt volle Viewport-Höhe; die Inhalte verteilen sich über die
    gesamte Höhe, damit kein Leerraum unten entsteht */
 .about-layout {
@@ -1071,7 +1117,11 @@ html, body { background: var(--bg-0); }
   align-items: stretch; flex: 1; min-height: 0;
 }
 .about-left { text-align: center; display: flex; flex-direction: column; justify-content: center; }
-.about-left .eyebrow { margin-bottom: 32px; }
+/* align-self: center — als Flex-Item würde das Eyebrow sonst auf volle Breite
+   gestreckt und sein Inhalt links ausgerichtet */
+/* align-self zentriert die Box, justify-content zusätzlich ihren Inhalt —
+   so ist das Eyebrow mittig, egal ob die Box gestreckt wird oder nicht */
+.about-left .eyebrow { margin-bottom: 32px; align-self: center; justify-content: center; }
 /* Trennlinie über der Headline — spiegelt die untere Linie von .about-meta:
    gleiche Schrift-Metriken + unsichtbarer Meta-Text ⇒ identische Breite je Sprache */
 .about-rule {
@@ -1263,26 +1313,24 @@ html, body { background: var(--bg-0); }
   .sv-news.vh { height: auto; min-height: 100svh; }
   .news-row { flex: 0 1 auto; max-height: none; }
   .news-media { flex: 0 0 110px; min-height: 110px; }
-  /* Stacked cards need real height — drop the desktop grid cap and let the
-     section grow so each frame renders at its 16/10 ratio (≈ news-card size) */
-  .sv-sets.vh { height: auto; min-height: 100svh; padding-bottom: 96px; }
-  .sets-grid { grid-template-columns: minmax(0, 1fr); gap: 44px; max-height: none; flex: 0 0 auto; grid-auto-rows: auto; }
-  /* Flat cinematic frame — Breite führt, sonst schiebt max-height den
-     Frame über den Viewport hinaus */
-  .sc-frame { aspect-ratio: 12 / 5; width: 100%; max-height: none; }
+  /* Stapel-Karte: exakt ein Viewport hoch, das Grid füllt die Resthöhe.
+     Die Karten passen sich der Höhe an (kein festes Seitenverhältnis). */
+  .sv-sets.vh { padding-bottom: 16px; }
+  .sets-grid { grid-template-columns: minmax(0, 1fr); gap: 12px; max-height: none; flex: 1; min-height: 0; grid-auto-rows: minmax(0, 1fr); }
+  /* Frame füllt seine Grid-Zeile (kein festes Verhältnis) */
+  .sc-frame { aspect-ratio: auto; width: 100%; max-height: none; }
   .sv-set-detail .vh-inner { padding: 0; }
-  /* Fixed 100svh squeezes the media row once the text column grows — let the
-     section expand instead so the image keeps its full width */
-  .sv-set-detail.vh { height: auto; min-height: 100svh; padding-bottom: 48px; }
+  /* Stapel-Effekt gilt auch mobil — Karten sind genau einen Viewport hoch und
+     docken unter der Navbar an. Der Inhalt ist dafür kompakter gesetzt. */
+  .stack-zone .vh { height: 100svh; padding-top: calc(var(--nav-h) + 16px); }
+  .sv-set-detail.vh { padding-bottom: 16px; }
   /* minmax(0,1fr) statt 1fr: 1fr hat implizit min-width:auto — Inhalte können
-     die Spalte (und damit die Sektion) über den Viewport hinausdrücken.
-     align-items: start statt stretch — sonst streckt eine lange Text-Spalte
-     das Bild in die Höhe und der Crop zoomt extrem hinein */
-  .set-detail, .set-detail.reverse { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 40px; padding: 0 var(--pad-x); flex: 0 0 auto; align-items: start; }
-  .sdm-wrap, .set-detail.reverse .sdm-wrap { order: 0; gap: 10px; width: 100%; max-width: 100%; max-height: none; }
+     die Spalte (und damit die Sektion) über den Viewport hinausdrücken. */
+  .set-detail, .set-detail.reverse { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 28px; padding: 0 var(--pad-x); flex: 1; min-height: 0; align-items: center; }
+  .sdm-wrap, .set-detail.reverse .sdm-wrap { order: 0; gap: 10px; width: 100%; max-width: 100%; min-height: 0; }
   .sdm-thumbs { max-width: 100%; }
-  .sdm-thumb { width: 64px; height: 64px; }
-  .sdm { min-height: 0; width: 100%; aspect-ratio: 4 / 3; max-height: none; flex: 0 0 auto; }
+  .sdm-thumb { width: 56px; height: 56px; }
+  .sdm { min-height: 0; width: 100%; aspect-ratio: 4 / 3; max-height: 42svh; flex: 0 0 auto; }
   /* Bilder ohne Zoom zeigen — bei abweichender Ratio entstehen Balken auf bg-2 */
   .sdm-img { background-size: contain; background-repeat: no-repeat; background-position: center; }
   .sdm:hover .sdm-img { transform: none; }
@@ -1294,15 +1342,31 @@ html, body { background: var(--bg-0); }
   .sdh h3 { font-size: clamp(38px, 9vw, 56px); overflow-wrap: break-word; }
   .sd-kv { grid-template-columns: 1fr; gap: 2px; }
   /* Sektion wächst mit dem gestapelten Inhalt; Info-Blöcke untereinander */
-  .sv-location.vh { height: auto; min-height: 100svh; }
+  /* Abschluss nach der Karte — sonst klebt About direkt an der Map */
+  .sv-location.vh { height: auto; min-height: 100svh; padding-bottom: 130px; }
   .location-grid { gap: 24px; }
   .location-info { grid-template-columns: 1fr; gap: 22px; }
-  .map-wrap { min-height: 340px; }
+  /* Feste, kurze Kartenhöhe — flex:1 ließe sie in der auto-hohen Sektion wachsen */
+  .map-wrap { flex: 0 0 auto; min-height: 0; height: clamp(200px, 34svh, 300px); max-height: none; }
   /* Gestapelt wächst die Sektion mit dem Inhalt statt hart bei 100svh zu clippen */
-  .sv-about.vh { height: auto; min-height: 100svh; }
-  .about-layout { grid-template-columns: 1fr; gap: 40px; }
+  /* Gestapelt gilt die Desktop-Zentrierkorrektur nicht — Padding zurücksetzen */
+  .sv-about.vh { height: auto; min-height: 100svh; padding-bottom: 16px; }
+  /* Team näher an den Text rücken, aber mit Luft.
+     align-content: start ist entscheidend — sonst strecken sich die auto-Zeilen
+     auf die Sektionshöhe und der Textblock wird vertikal zentriert, was unter
+     dem Untertitel zusätzlichen Leerraum erzeugt. */
+  .about-layout { grid-template-columns: 1fr; gap: 32px; align-content: start; }
+  /* Die obere Linie gehört zum Untertitel (.about-meta), nicht zum Team */
+  .about-team { border-top: none; align-self: start; }
+  /* Keine Trennlinien unter den Team-Einträgen */
+  .team-row { border-bottom: none; }
+  /* Erste Zeile ohne Kopf-Padding — sonst addiert sie sich zum Layout-Abstand */
+  .about-team .team-row:first-child { padding-top: 0; }
   .team-row { flex: 0 0 auto; max-height: none; }
   .about-h { font-size: clamp(44px, 11vw, 84px); margin-bottom: 24px; }
+  /* Trennlinie raus; Abstand Eyebrow → Headline wie in .section-head (h2 margin-top: 24px) */
+  .about-rule { display: none; }
+  .about-left .eyebrow { margin-bottom: 24px; }
   .team-row { grid-template-columns: 96px 1fr; gap: 18px; padding: 20px 0; }
   .team-photo { width: 96px; }
   .sv-footer { padding: 64px var(--pad-x) 48px; }
@@ -1317,16 +1381,42 @@ html, body { background: var(--bg-0); }
   .hero-bottom-left { bottom: 36px; gap: 18px; }
   .hero-bottom-left .sv-btn { width: 100%; justify-content: space-between; padding: 18px 22px; }
   .hero-eyebrow { font-size: 10px; letter-spacing: 0.18em; }
-  .set-detail, .set-detail.reverse { grid-template-columns: minmax(0, 1fr); }
+  /* Einspaltig gestapelt: Inhalt muss in EINE Karte (= ein Viewport) passen,
+     daher kompakter gesetzt — sonst würde .vh (overflow: hidden) abschneiden. */
+  .set-detail, .set-detail.reverse {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr;
+    gap: 14px; align-items: start;
+  }
+  .sdm { aspect-ratio: 16 / 10; max-height: 26svh; }
+  .sdm-thumb { width: 44px; height: 44px; }
+  .sdc { gap: 10px; padding-top: 0; }
+  .sdh .sd-num { margin-bottom: 8px; }
+  .sdh h3 { font-size: clamp(24px, 6.5vw, 34px); margin-bottom: 8px; }
+  .sdh .sd-lead {
+    font-size: 13px; line-height: 1.45;
+    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .sd-kv { padding: 6px 0; }
+  .ib-label { margin-bottom: 6px; }
+  .ib-chips span { padding: 4px 9px; font-size: 10px; }
   .about-h { font-size: clamp(52px, 14vw, 88px); }
   .team-row { grid-template-columns: 1fr; gap: 14px; padding: 24px 0; }
-  .team-photo { width: 100%; aspect-ratio: 16 / 11; }
+  /* Quadratisches Profilbild, zentriert */
+  .team-photo { width: 100%; max-width: 240px; aspect-ratio: 1 / 1; margin: 0 auto; }
+  /* Beschreibung zentriert */
+  .team-info { align-items: center; text-align: center; }
+  .t-links { justify-content: center; }
   .team-row:hover { padding-left: 0; }
   .sd-cta-row { flex-direction: column; align-items: stretch; gap: 14px; }
   .sd-cta-row .sv-btn { width: 100%; justify-content: space-between; }
   .booking-inner { padding: 0 var(--pad-x); gap: 22px; }
   /* Karten volle Viewport-Breite für große Bilder */
+  /* Zwei kompakte Karten pro Reihe, quadratische Bilder — sonst wird die
+     Sektion durch das Hochformat sehr lang */
+  /* Karten untereinander über die volle Breite; quadratisches Format bleibt */
   .bk-set { width: 100%; max-width: none; }
+  .bk-set-media { aspect-ratio: 1 / 1; }
   .sv-booking .sv-btn { width: 100%; max-width: 360px; justify-content: space-between; }
   .eyebrow { font-size: 10px; letter-spacing: 0.18em; }
 }

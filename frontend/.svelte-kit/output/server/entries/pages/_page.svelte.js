@@ -742,9 +742,9 @@ function _page($$renderer, $$props) {
     Home($$renderer2);
     $$renderer2.push(`<!----> `);
     News($$renderer2);
-    $$renderer2.push(`<!----> `);
+    $$renderer2.push(`<!----> <div class="stack-zone">`);
     Studios($$renderer2);
-    $$renderer2.push(`<!----> `);
+    $$renderer2.push(`<!----> <div class="stack-dwell" aria-hidden="true"></div></div> `);
     Location($$renderer2);
     $$renderer2.push(`<!----> `);
     Team($$renderer2);
