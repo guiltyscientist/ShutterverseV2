@@ -811,13 +811,16 @@ html, body { background: var(--bg-0); }
 /* Verweilzone pro Karte: margin-bottom schiebt die NÄCHSTE Karte später in den
    Fluss — die aktuelle bleibt derweil angedockt und wird nicht sofort überdeckt.
    Der Leerraum liegt hinter der klebenden Karte und ist nie sichtbar. */
-.sv-sets, .sv-set-detail { margin-bottom: 30vh; }
+.sv-set-detail { margin-bottom: 30vh; }
+/* Set-Übersicht darf länger stehen bleiben, bevor Studio 1 sie überschiebt */
+.sv-sets { margin-bottom: 55vh; }
 /* Die letzte Karte (Studio 3) bekommt ihre Verweilzone aus dem Spacer — sonst
    käme ihr eigener margin-bottom obendrauf und Location schlösse zu spät an. */
 .stack-zone section:last-of-type { margin-bottom: 0; }
-/* Verweilzone der letzten Karte: echtes In-Flow-Element (padding am Container
-   würde den Sticky-Bereich NICHT verlängern). Location schließt direkt daran an. */
-.stack-dwell { height: 30vh; }
+/* Verweilzone von Studio 3 (der letzten Karte): echtes In-Flow-Element — padding
+   am Container würde den Sticky-Bereich NICHT verlängern. Der Scrollweg liegt
+   hinter der klebenden Karte, ist also nie sichtbar. Location schließt direkt an. */
+.stack-dwell { height: 55vh; }
 .sv-set-detail.vh { padding-bottom: 24px; }
 .sv-set-detail .vh-inner {
   justify-content: flex-start;
@@ -1374,6 +1377,18 @@ html, body { background: var(--bg-0); }
   .foot-line { flex-direction: column; align-items: flex-start; gap: 14px; }
 }
 @media (max-width: 780px) {
+  /* Koordinaten-Label: passt mit 11px + weitem Buchstabenabstand nicht in die
+     Kartenbreite. Kleiner, enger — und es darf sauber umbrechen statt zu
+     überlappen (white-space: nowrap hat es vorher zusammengequetscht). */
+  .map-overlay {
+    bottom: 14px;
+    padding: 9px 12px; gap: 8px;
+    font-size: 9px; letter-spacing: 0.08em;
+    max-width: calc(100% - 20px);
+    white-space: normal;
+    line-height: 1.6;
+    text-align: center;
+  }
   :root { --pad-x: 22px; }
   .sv-hero { min-height: 100svh; }
   .hero-corners::before { display: none; }
