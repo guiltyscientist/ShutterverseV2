@@ -9,5 +9,5 @@ export interface IStudio {
   images: IImage[]
   inspiredBy: string[]
   bookingUrl: string | null
-  isNew: boolean
+  showNewBadge: boolean
 }

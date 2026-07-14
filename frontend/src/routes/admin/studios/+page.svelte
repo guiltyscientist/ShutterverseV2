@@ -33,7 +33,7 @@
   const emptyForm = () => ({
     title: { de: '', en: '' }, description: { de: '', en: '' },
     equipment: { de: '', en: '' }, titleImg: null as File | null, newImages: [] as File[],
-    removeTitleImg: false, inspiredBy: [] as string[], bookingUrl: '', isNew: false,
+    removeTitleImg: false, inspiredBy: [] as string[], bookingUrl: '', showNewBadge: false,
   })
   let form = $state(emptyForm())
 
@@ -63,7 +63,7 @@
     form = { title: { de: item.title?.de ?? '', en: item.title?.en ?? '' },
       description: { de: item.description?.de ?? '', en: item.description?.en ?? '' },
       equipment: { de: item.equipment?.de ?? '', en: item.equipment?.en ?? '' }, titleImg: null, newImages: [],
-      removeTitleImg: false, inspiredBy: [...(item.inspiredBy || [])], bookingUrl: item.bookingUrl ?? '', isNew: !!item.isNew }
+      removeTitleImg: false, inspiredBy: [...(item.inspiredBy || [])], bookingUrl: item.bookingUrl ?? '', showNewBadge: !!item.showNewBadge }
     currentImages = item.images ? [...item.images] : []
     resetPending(); formError = ''; showModal = true
   }
@@ -121,7 +121,7 @@
       fd.append('equipment_en', form.equipment.en ?? '')
       fd.append('inspiredBy', JSON.stringify(form.inspiredBy))
       fd.append('bookingUrl', form.bookingUrl.trim())
-      fd.append('isNew', String(form.isNew))
+      fd.append('showNewBadge', String(form.showNewBadge))
       if (form.titleImg) fd.append('titleImg', form.titleImg)
       if (editItem) fd.append('removeTitleImg', String(form.removeTitleImg))
       form.newImages.forEach(f => fd.append('images', f))
@@ -182,7 +182,7 @@
         <input bind:value={form.bookingUrl} type="url" class="input" placeholder="https://… (Link für „Book this Set“)" />
       </FormField>
       <label class="admin-toggle flex items-center gap-3 cursor-pointer">
-        <input type="checkbox" bind:checked={form.isNew} class="w-4 h-4 cursor-pointer" style="accent-color: var(--neon-cyan)" />
+        <input type="checkbox" bind:checked={form.showNewBadge} class="w-4 h-4 cursor-pointer" style="accent-color: var(--neon-cyan)" />
         <span class="text-sm" style="color: var(--ink-0)">„NEW“-Badge anzeigen</span>
       </label>
       <FormField label="Titelbild">

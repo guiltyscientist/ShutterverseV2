@@ -545,7 +545,7 @@ function Studios($$renderer, $$props) {
       for (let i = 0, $$length = each_array.length; i < $$length; i++) {
         let studio = each_array[i];
         const img = shown[`card-${studio.id}`] ? cldUrl(getImg(studio), CLD.card) : null;
-        $$renderer2.push(`<article${attr_class(`set-card ${stringify(theme(i))}`)}><a${attr("href", `#set-${stringify(studio.id)}`)} class="set-card-link"${attr("aria-label", lt(studio.title))}></a> <div class="sc-frame"><div class="sc-img-clip"><div class="sc-img"${attr_style(img ? `background-image: url(${img})` : "")}></div> <div class="sc-scrim"></div></div> <div class="sc-title-overlay"><h3>${escape_html(lt(studio.title))}</h3></div> <div class="annot-corner tl"></div> <div class="annot-corner tr"></div> <div class="annot-corner bl"></div> <div class="annot-corner br"></div></div> <div class="sc-label"><div class="sc-num">SET / ${escape_html(padNum(i + 1))}${escape_html(studio.isNew ? " · NEW" : "")}</div></div></article>`);
+        $$renderer2.push(`<article${attr_class(`set-card ${stringify(theme(i))}`)}><a${attr("href", `#set-${stringify(studio.id)}`)} class="set-card-link"${attr("aria-label", lt(studio.title))}></a> <div class="sc-frame"><div class="sc-img-clip"><div class="sc-img"${attr_style(img ? `background-image: url(${img})` : "")}></div> <div class="sc-scrim"></div></div> <div class="sc-title-overlay"><h3>${escape_html(lt(studio.title))}</h3></div> <div class="annot-corner tl"></div> <div class="annot-corner tr"></div> <div class="annot-corner bl"></div> <div class="annot-corner br"></div></div> <div class="sc-label"><div class="sc-num">SET / ${escape_html(padNum(i + 1))}${escape_html(studio.showNewBadge ? " · NEW" : "")}</div></div></article>`);
       }
       $$renderer2.push(`<!--]--></div></div></section> <!--[-->`);
       const each_array_1 = ensure_array_like(studios);
@@ -558,7 +558,7 @@ function Studios($$renderer, $$props) {
         const a = annot(i);
         const equipment = getEquipmentItems(studio);
         const isReverse = i % 2 === 1;
-        const isNew = !!studio.isNew;
+        const isNew = !!studio.showNewBadge;
         $$renderer2.push(`<section class="sv-set-detail vh"${attr("id", `set-${stringify(studio.id)}`)}><div class="vh-inner"><article${attr_class(`set-detail ${isReverse ? "reverse" : ""}`)}><div class="sdm-wrap"><div${attr_class(`sdm ${stringify(theme(i))}`)}><div class="sdm-img"${attr_style(img ? `background-image: url(${img})` : "")}></div> <div class="annot annot-tl">${escape_html(a.tl)}</div> <div class="annot annot-tr"><span class="dot-mag"></span> REC · 24P</div> <div class="annot annot-bl">// SET ${escape_html(padNum(i + 1))} · ${escape_html(lt(studio.title).toUpperCase())}</div> <div class="annot annot-br">⟶ ${escape_html(a.br)}</div> <div class="annot-corner tl"></div> <div class="annot-corner tr"></div> <div class="annot-corner bl"></div> <div class="annot-corner br"></div> `);
         if (isNew) {
           $$renderer2.push("<!--[0-->");
@@ -663,7 +663,7 @@ function Team($$renderer, $$props) {
     const { t, lt, ltArr } = useLocale();
     let members = [];
     const safeUrl = (url) => /^https?:\/\//i.test(url) ? url : "";
-    $$renderer2.push(`<section class="sv-about vh" id="about"><div class="vh-inner"><div class="about-layout"><div class="about-left"><div class="eyebrow">${escape_html(t.aboutDesign.eyebrow)}</div> <div class="about-rule"></div> <h2 class="about-h">${escape_html(t.aboutDesign.h1)}<br/> <span class="stroke">${escape_html(t.aboutDesign.h2)}</span><br/> ${escape_html(t.aboutDesign.h3)}</h2> <div class="about-meta">${escape_html(t.aboutDesign.meta)}</div></div> <div class="about-team">`);
+    $$renderer2.push(`<section class="sv-about vh" id="about"><div class="vh-inner"><div class="about-layout"><div class="about-left"><div class="eyebrow">${escape_html(t.aboutDesign.eyebrow)}</div> <div class="about-rule" aria-hidden="true">${escape_html(t.aboutDesign.meta)}</div> <h2 class="about-h">${escape_html(t.aboutDesign.h1)}<br/> <span class="stroke">${escape_html(t.aboutDesign.h2)}</span><br/> ${escape_html(t.aboutDesign.h3)}</h2> <div class="about-meta">${escape_html(t.aboutDesign.meta)}</div></div> <div class="about-team">`);
     if (members.length === 0) {
       $$renderer2.push("<!--[0-->");
       $$renderer2.push(`<div class="team-row"><div class="team-photo"><div class="tp-frame"></div> <div class="tp-label">MEMBER</div></div> <div class="team-info"><div class="t-role">Photographer · Set Builder</div> <div class="t-name">${escape_html(t.team.growing)}</div> <div class="t-bio">${escape_html(t.team.checkBack)}</div></div></div>`);
@@ -748,7 +748,7 @@ function _page($$renderer, $$props) {
     Location($$renderer2);
     $$renderer2.push(`<!----> `);
     Team($$renderer2);
-    $$renderer2.push(`<!----> <section class="sv-booking" id="booking"><div class="booking-inner"><div class="section-head"><div><div class="eyebrow">${escape_html(t.bookingSection.eyebrow)}</div> <h2>${escape_html(t.bookingSection.h)}</h2></div></div> <p>${escape_html(t.bookingSection.p)}</p> `);
+    $$renderer2.push(`<!----> <section class="sv-booking" id="booking"><div class="booking-inner"><div class="section-head"><div><div class="eyebrow">${escape_html(t.bookingSection.eyebrow)}</div> <h2>${escape_html(t.bookingSection.h)}</h2></div></div> `);
     if (teaserSets.length > 0) {
       $$renderer2.push("<!--[0-->");
       $$renderer2.push(`<div class="bk-sets"><!--[-->`);
@@ -758,7 +758,7 @@ function _page($$renderer, $$props) {
         $$renderer2.push(`<a class="bk-set"${attr("href", s.bookingUrl || BOOKING_URL)} target="_blank" rel="noopener noreferrer"${attr("aria-label", `${stringify(lt(s.title))} – ${stringify(t.bookingSection.cta)}`)}><div class="bk-set-media">`);
         if (s.titleImg) {
           $$renderer2.push("<!--[0-->");
-          $$renderer2.push(`<div class="bk-set-img"${attr_style(`background-image: url(${stringify(cldUrl(s.titleImg, "w_600,h_800,c_fill,q_auto,f_auto"))})`)}></div>`);
+          $$renderer2.push(`<div class="bk-set-img"${attr_style(`background-image: url(${stringify(cldUrl(s.titleImg, "w_720,h_960,c_fill,q_auto,f_auto"))})`)}></div>`);
         } else {
           $$renderer2.push("<!--[-1-->");
         }

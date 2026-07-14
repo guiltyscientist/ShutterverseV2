@@ -1072,8 +1072,14 @@ html, body { background: var(--bg-0); }
 }
 .about-left { text-align: center; display: flex; flex-direction: column; justify-content: center; }
 .about-left .eyebrow { margin-bottom: 32px; }
-/* Trennlinie über der Headline — spiegelt die untere Linie von .about-meta */
-.about-rule { width: min(360px, 80%); height: 1px; background: rgba(255,255,255,0.08); margin: 0 auto 32px; }
+/* Trennlinie über der Headline — spiegelt die untere Linie von .about-meta:
+   gleiche Schrift-Metriken + unsichtbarer Meta-Text ⇒ identische Breite je Sprache */
+.about-rule {
+  display: inline-block; border-top: 1px solid rgba(255,255,255,0.08);
+  font-family: var(--f-mono); font-size: 12px; letter-spacing: 0.22em;
+  text-transform: uppercase; line-height: 0; color: transparent;
+  user-select: none; pointer-events: none; margin-bottom: 32px;
+}
 .about-left .eyebrow::after { content: ""; width: 28px; height: 1px; background: var(--neon-cyan); }
 .about-h {
   font-family: var(--f-display); font-weight: 700;
@@ -1121,11 +1127,10 @@ html, body { background: var(--bg-0); }
   width: 100%; max-width: var(--maxw); margin: 0 auto;
   padding: 0 var(--pad-x);
 }
-.sv-booking p { font-size: 18px; color: var(--ink-1); max-width: 56ch; margin: 0 auto; position: relative; }
 /* Set-Teaser: Karten (Bild + Buchen-Button), komplett klickbar */
-.bk-sets { display: flex; flex-wrap: wrap; justify-content: center; gap: 16px; margin-top: 10px; }
+.bk-sets { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; margin-top: 10px; }
 .bk-set {
-  position: relative; width: 300px; overflow: hidden;
+  position: relative; width: 348px; overflow: hidden;
   display: flex; flex-direction: column;
   background: var(--bg-2); border: 1px solid rgba(255,255,255,0.1);
   transition: border-color .25s ease, transform .25s ease, box-shadow .25s ease;
@@ -1300,7 +1305,6 @@ html, body { background: var(--bg-0); }
   .about-h { font-size: clamp(44px, 11vw, 84px); margin-bottom: 24px; }
   .team-row { grid-template-columns: 96px 1fr; gap: 18px; padding: 20px 0; }
   .team-photo { width: 96px; }
-  .sv-booking p { font-size: 16px; }
   .sv-footer { padding: 64px var(--pad-x) 48px; }
   .impressum-grid { grid-template-columns: 1fr 1fr; gap: 28px; }
   .foot-line { flex-direction: column; align-items: flex-start; gap: 14px; }
@@ -1321,8 +1325,7 @@ html, body { background: var(--bg-0); }
   .sd-cta-row { flex-direction: column; align-items: stretch; gap: 14px; }
   .sd-cta-row .sv-btn { width: 100%; justify-content: space-between; }
   .booking-inner { padding: 0 var(--pad-x); gap: 22px; }
-  /* Untertitel mobil ausblenden, Karten volle Viewport-Breite für große Bilder */
-  .sv-booking p { display: none; }
+  /* Karten volle Viewport-Breite für große Bilder */
   .bk-set { width: 100%; max-width: none; }
   .sv-booking .sv-btn { width: 100%; max-width: 360px; justify-content: space-between; }
   .eyebrow { font-size: 10px; letter-spacing: 0.18em; }

@@ -30,7 +30,8 @@
       <!-- Left: headline -->
       <div class="about-left">
         <div class="eyebrow">{t.aboutDesign.eyebrow}</div>
-        <div class="about-rule"></div>
+        <!-- Unsichtbarer Meta-Text koppelt die Breite an die untere Linie -->
+        <div class="about-rule" aria-hidden="true">{t.aboutDesign.meta}</div>
         <h2 class="about-h">
           {t.aboutDesign.h1}<br>
           <span class="stroke">{t.aboutDesign.h2}</span><br>

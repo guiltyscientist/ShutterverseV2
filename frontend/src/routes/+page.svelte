@@ -97,7 +97,6 @@
           <h2>{t.bookingSection.h}</h2>
         </div>
       </div>
-      <p>{t.bookingSection.p}</p>
       {#if teaserSets.length > 0}
         <div class="bk-sets">
           {#each teaserSets as s (s.id)}
@@ -110,7 +109,7 @@
             >
               <div class="bk-set-media">
                 {#if s.titleImg}
-                  <div class="bk-set-img" style="background-image: url({cldUrl(s.titleImg, 'w_600,h_800,c_fill,q_auto,f_auto')})"></div>
+                  <div class="bk-set-img" style="background-image: url({cldUrl(s.titleImg, 'w_720,h_960,c_fill,q_auto,f_auto')})"></div>
                 {/if}
                 <div class="bk-set-scrim"></div>
                 <span class="bk-set-title">{lt(s.title)}</span>

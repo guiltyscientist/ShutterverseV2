@@ -11,7 +11,7 @@
   interface Studio {
     id: string; title: any; description: any; equipment: any
     titleImg?: { url: string }; images?: { url: string }[]
-    inspiredBy?: string[]; bookingUrl?: string | null; isNew?: boolean
+    inspiredBy?: string[]; bookingUrl?: string | null; showNewBadge?: boolean
   }
 
   let studios = $state<Studio[]>([])
@@ -111,7 +111,7 @@
             <div class="annot-corner br"></div>
           </div>
           <div class="sc-label">
-            <div class="sc-num">SET / {padNum(i + 1)}{studio.isNew ? ' · NEW' : ''}</div>
+            <div class="sc-num">SET / {padNum(i + 1)}{studio.showNewBadge ? ' · NEW' : ''}</div>
           </div>
         </article>
       {/each}
@@ -128,7 +128,7 @@
   {@const a = annot(i)}
   {@const equipment = getEquipmentItems(studio)}
   {@const isReverse = i % 2 === 1}
-  {@const isNew = !!studio.isNew}
+  {@const isNew = !!studio.showNewBadge}
 
   <section class="sv-set-detail vh" id="set-{studio.id}">
     <div class="vh-inner">

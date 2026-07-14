@@ -42,7 +42,7 @@ function parseStudioFields(body) {
         equipment: { de: body.equipment_de || null, en: body.equipment_en || null },
         inspiredBy: sanitizeTags(body.inspiredBy),
         bookingUrl: sanitizeBookingUrl(body.bookingUrl),
-        isNew: body.isNew === 'true',
+        showNewBadge: body.showNewBadge === 'true',
     };
 }
 

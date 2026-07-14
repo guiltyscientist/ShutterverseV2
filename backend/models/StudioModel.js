@@ -20,7 +20,8 @@ const StudioSchema = new Schema({
     }],
     inspiredBy: [{ type: String }],
     bookingUrl: { type: String, default: null },
-    isNew: { type: Boolean, default: false }
+    // Not named `isNew` — that is a reserved Mongoose document property
+    showNewBadge: { type: Boolean, default: false }
 }, { versionKey: false });
 
 export default model('Studio', StudioSchema, 'Studios');
