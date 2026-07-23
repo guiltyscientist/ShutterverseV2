@@ -45,6 +45,6 @@ declare module "$app/types" {
 		};
 		Pathname(): "/" | "/admin" | "/admin/hero" | "/admin/login" | "/admin/news" | "/admin/studios" | "/admin/team" | "/admin/users";
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
-		Asset(): "/favicon.ico" | "/logos/BIG.png" | "/logos/ICON.png" | string & {};
+		Asset(): "/Video_3Studios_Webseite.mp4" | "/favicon.ico" | "/logos/BIG.png" | "/logos/ICON.png" | string & {};
 	}
 }

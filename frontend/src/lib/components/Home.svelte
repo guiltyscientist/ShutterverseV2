@@ -8,27 +8,48 @@
 
   const SLIDE_MS = 8000
 
-  let media = $state<HeroItem[]>([])
+    let media = $state<HeroItem[]>([
+    { 
+      id: 'video_1', 
+      type: 'video', 
+      url: '/Video_3Studios_Webseite.mp4' 
+    }
+  ])
   let slide = $state(0)
 
   // Newest video wins; otherwise the images run as a crossfade slideshow
   const video = $derived(media.find(m => m.type === 'video') ?? null)
   const images = $derived(media.filter(m => m.type === 'image'))
 
-  onMount(() => {
-    let timer: ReturnType<typeof setInterval> | undefined
+onMount(() => {
+  let timer: ReturnType<typeof setInterval> | undefined
 
-    axios.get('/api/hero')
-      .then(({ data }) => {
-        media = data
-        if (!video && images.length > 1) {
-          timer = setInterval(() => { slide = (slide + 1) % images.length }, SLIDE_MS)
+  axios.get('/api/hero')
+    .then(({ data }) => {
+      if (data && data.length > 0) {
+        const hasVideo = data.some((item: HeroItem) => item.type === 'video')
+        
+        if (!hasVideo) {
+          const existingVideo = media.find(m => m.type === 'video')
+          media = [
+            ...(existingVideo ? [existingVideo] : []),
+            ...data.filter((m: HeroItem) => m.type === 'image')
+          ]
+        } else {
+          media = data
         }
-      })
-      .catch(() => { media = [] })
+      }  
+      if (!video && images.length > 1) {
+        timer = setInterval(() => { slide = (slide + 1) % images.length }, SLIDE_MS)
+      }
+    })
+    .catch(() => { 
+      // Bei Fehler: media nicht auf [] setzen, sonst verschwindet das Video
+      console.log('API error, using fallback video')
+    })
 
-    return () => { if (timer) clearInterval(timer) }
-  })
+  return () => { if (timer) clearInterval(timer) }
+})
 </script>
 
 <section class="sv-hero" id="top">
